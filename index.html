@@ -78,7 +78,7 @@
             produtos: [], // Matéria-prima / Produtos
             vendas: [],   // Vendas realizadas
             despesas: [], // Despesas manuais (tecidos, etiquetas, etc)
-            cicloAtual: null // Mês atual
+            historicoMensal: [] // Histórico de fechamentos
         };
 
         function salvarDados() { localStorage.setItem('gakids_data', JSON.stringify(dados)); }
@@ -101,6 +101,9 @@
 
         // ================== 1. DASHBOARD ==================
         function renderDashboard() {
+            // Garantir que o array de histórico existe para evitar erro undefined
+            if(!dados.historicoMensal) dados.historicoMensal = [];
+
             const totalVendas = dados.vendas.reduce((acc, v) => acc + v.total, 0);
             const totalCusto = dados.vendas.reduce((acc, v) => acc + v.custoTotal, 0);
             const totalDespesas = dados.despesas.reduce((acc, d) => acc + d.valor, 0);
@@ -247,6 +250,9 @@
                     </div>
                     <table class="table table-hover mt-3"><thead><tr><th>Descrição</th><th>Valor</th><th></th></tr></thead><tbody>
             `;
+            // Garantir que o array de despesas existe
+            if(!dados.despesas) dados.despesas = [];
+
             dados.despesas.slice().reverse().forEach(d => {
                 html += `<tr><td>${d.desc}</td><td style="color:var(--danger)">${moeda(d.valor)}</td><td><button class="btn btn-sm btn-outline-danger" onclick="excluirDespesa(${d.id})"><i class="fas fa-trash"></i></button></td></tr>`;
             });
@@ -271,6 +277,10 @@
             const hoje = new Date();
             // Se hoje for dia 1, executa o fechamento
             if(hoje.getDate() === 1) {
+                // Garantir que os arrays existam antes de calcular
+                if(!dados.vendas) dados.vendas = [];
+                if(!dados.despesas) dados.despesas = [];
+
                 const totalVendas = dados.vendas.reduce((acc, v) => acc + v.total, 0);
                 const totalCusto = dados.vendas.reduce((acc, v) => acc + v.custoTotal, 0);
                 const totalDespesas = dados.despesas.reduce((acc, d) => acc + d.valor, 0);
@@ -279,8 +289,9 @@
                 if(totalVendas > 0 || totalDespesas > 0) {
                     // Salva o relatório do mês anterior
                     if(!dados.historicoMensal) dados.historicoMensal = [];
+                    
                     dados.historicoMensal.push({
-                        mes: `${hoje.getMonth()}/${hoje.getFullYear()}`,
+                        mes: `${hoje.getMonth() + 1}/${hoje.getFullYear()}`,
                         vendas: totalVendas,
                         custos: totalCusto,
                         despesas: totalDespesas,
@@ -308,6 +319,12 @@
         });
 
         // ================== INICIALIZAR ==================
+        // Garantir estruturas iniciais para evitar undefined
+        if(!dados.vendas) dados.vendas = [];
+        if(!dados.despesas) dados.despesas = [];
+        if(!dados.historicoMensal) dados.historicoMensal = [];
+        salvarDados();
+
         // Verifica se é dia 1 para fazer o fechamento
         executarFechamentoMensal();
         renderDashboard();
