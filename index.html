@@ -341,22 +341,26 @@ cat > index.html << 'EOF'
             await salvarDados(); renderFinanceiro();
         };
 
-        // ================== 5. HISTÓRICO E EXPORTAÇÃO ==================
+        // ================== 5. HISTÓRICO EM TEMPO REAL ==================
         function renderHistorico() {
             if(!dados.historicoMensal) dados.historicoMensal = [];
             
+            // ========== CALCULAR O MÊS ATUAL EM TEMPO REAL ==========
+            const agora = new Date();
+            const mesAtual = `${agora.getMonth() + 1}/${agora.getFullYear()}`;
+            
+            const totalVendasAtual = dados.vendas.reduce((acc, v) => acc + v.total, 0);
+            const totalCustoAtual = dados.vendas.reduce((acc, v) => acc + v.custoTotal, 0);
+            const totalDespesasAtual = dados.despesas.reduce((acc, d) => acc + d.valor, 0);
+            const lucroAtual = (totalVendasAtual - totalCustoAtual) - totalDespesasAtual;
+
+            // ========== MONTAR A TABELA ==========
             let html = `
                 <div class="table-card">
                     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 20px;">
-                        <h5>📊 Fechamentos Mensais Anteriores</h5>
+                        <h5>📊 Relatório Mensal</h5>
                         <button class="btn-export" onclick="exportarDados()"><i class="fas fa-file-csv"></i> Exportar Dados (CSV)</button>
                     </div>
-            `;
-
-            if(dados.historicoMensal.length === 0) {
-                html += `<p class="text-muted text-center">Nenhum fechamento mensal registrado ainda. Os relatórios aparecerão aqui automaticamente no dia 1 de cada mês.</p>`;
-            } else {
-                html += `
                     <div class="table-responsive">
                         <table class="table table-hover">
                             <thead>
@@ -369,13 +373,29 @@ cat > index.html << 'EOF'
                                 </tr>
                             </thead>
                             <tbody>
-                `;
-                // Exibir do mais recente para o mais antigo
+            `;
+
+            // 1. Adicionar o mês atual em andamento (Sempre aparece)
+            const corAtual = lucroAtual >= 0 ? 'var(--success)' : 'var(--danger)';
+            const statusAtual = dados.vendas.length > 0 || dados.despesas.length > 0 ? '(Em andamento)' : '(Sem lançamentos)';
+            
+            html += `
+                <tr style="background-color: var(--primary-light);">
+                    <td><strong>${mesAtual}</strong> <span class="badge bg-primary text-white">Aberto</span></td>
+                    <td>${moeda(totalVendasAtual)}</td>
+                    <td>${moeda(totalCustoAtual)}</td>
+                    <td style="color:var(--danger)">${moeda(totalDespesasAtual)}</td>
+                    <td style="color:${corAtual}; font-weight: bold;">${moeda(lucroAtual)}</td>
+                </tr>
+            `;
+
+            // 2. Adicionar os meses antigos (Já fechados)
+            if(dados.historicoMensal.length > 0) {
                 dados.historicoMensal.slice().reverse().forEach(m => {
                     const corLucro = m.lucro >= 0 ? 'var(--success)' : 'var(--danger)';
                     html += `
                         <tr>
-                            <td><strong>${m.mes}</strong></td>
+                            <td><strong>${m.mes}</strong> <span class="badge bg-secondary text-white">Fechado</span></td>
                             <td>${moeda(m.vendas)}</td>
                             <td>${moeda(m.custos)}</td>
                             <td style="color:var(--danger)">${moeda(m.despesas)}</td>
@@ -383,31 +403,60 @@ cat > index.html << 'EOF'
                         </tr>
                     `;
                 });
-                html += `</tbody></table></div>`;
+            } else {
+                html += `<tr><td colspan="5" class="text-center text-muted">Nenhum mês anterior fechado.</td></tr>`;
             }
-            html += `</div>`;
+
+            html += `</tbody></table></div></div>`;
             document.getElementById('conteudoApp').innerHTML = html;
         }
 
-        // ================== 6. EXPORTAÇÃO CSV ==================
+        // ================== 6. EXPORTAÇÃO CSV (Meses Antigos + Mês Atual) ==================
         window.exportarDados = function() {
-            if(!dados.historicoMensal || dados.historicoMensal.length === 0) {
-                return alert("Não há dados de histórico mensal para exportar ainda.");
+            // Montar lista completa de dados para exportar
+            let dadosExportacao = [];
+
+            // 1. Adicionar meses antigos
+            if(dados.historicoMensal) {
+                dados.historicoMensal.forEach(m => {
+                    dadosExportacao.push({
+                        mes: m.mes,
+                        vendas: m.vendas.toFixed(2),
+                        custos: m.custos.toFixed(2),
+                        despesas: m.despesas.toFixed(2),
+                        lucro: m.lucro.toFixed(2),
+                        status: 'Fechado'
+                    });
+                });
             }
 
-            // Cabeçalhos
-            let csv = "Mês;Vendas (R$);Custos (R$);Despesas (R$);Lucro Líquido (R$)\n";
-            
-            // Dados
-            dados.historicoMensal.forEach(m => {
-                csv += `${m.mes};${m.vendas.toFixed(2)};${m.custos.toFixed(2)};${m.despesas.toFixed(2)};${m.lucro.toFixed(2)}\n`;
+            // 2. Adicionar mês atual em tempo real
+            const agora = new Date();
+            const mesAtual = `${agora.getMonth() + 1}/${agora.getFullYear()}`;
+            const totalVendasAtual = dados.vendas.reduce((acc, v) => acc + v.total, 0);
+            const totalCustoAtual = dados.vendas.reduce((acc, v) => acc + v.custoTotal, 0);
+            const totalDespesasAtual = dados.despesas.reduce((acc, d) => acc + d.valor, 0);
+            const lucroAtual = (totalVendasAtual - totalCustoAtual) - totalDespesasAtual;
+
+            dadosExportacao.push({
+                mes: mesAtual,
+                vendas: totalVendasAtual.toFixed(2),
+                custos: totalCustoAtual.toFixed(2),
+                despesas: totalDespesasAtual.toFixed(2),
+                lucro: lucroAtual.toFixed(2),
+                status: 'Em andamento'
             });
 
-            // Criar arquivo e baixar
-            const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' }); // BOM para Excel
+            // Gerar CSV
+            let csv = "Mês;Vendas (R$);Custos (R$);Despesas (R$);Lucro Líquido (R$);Status\n";
+            dadosExportacao.forEach(m => {
+                csv += `${m.mes};${m.vendas};${m.custos};${m.despesas};${m.lucro};${m.status}\n`;
+            });
+
+            const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
-            link.download = `Relatorio_G&A_Kids_${new Date().toISOString().slice(0,10)}.csv`;
+            link.download = `Relatorio_Completo_G&A_Kids_${new Date().toISOString().slice(0,10)}.csv`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -433,23 +482,6 @@ cat > index.html << 'EOF'
             if(!dados.despesas) dados.despesas = [];
             if(!dados.historicoMensal) dados.historicoMensal = [];
             await salvarDados();
-            // Fechamento mensal (Dia 1)
-            const hoje = new Date();
-            if(hoje.getDate() === 1) {
-                const totalVendas = dados.vendas.reduce((acc, v) => acc + v.total, 0);
-                const totalCusto = dados.vendas.reduce((acc, v) => acc + v.custoTotal, 0);
-                const totalDespesas = dados.despesas.reduce((acc, d) => acc + d.valor, 0);
-                const lucroFinal = (totalVendas - totalCusto) - totalDespesas;
-                if(totalVendas > 0 || totalDespesas > 0) {
-                    dados.historicoMensal.push({
-                        mes: `${hoje.getMonth() + 1}/${hoje.getFullYear()}`,
-                        vendas: totalVendas, custos: totalCusto, despesas: totalDespesas, lucro: lucroFinal
-                    });
-                    dados.vendas = [];
-                    dados.despesas = [];
-                    await salvarDados();
-                }
-            }
             renderDashboard();
         })();
     </script>
