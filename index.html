@@ -59,9 +59,9 @@
         <div class="brand"><div class="logo">G&A</div><span class="name">G&A Kids</span></div>
         <nav class="nav">
             <span class="nav-item active" onclick="trocarAba('dashboard', this)"><i class="fas fa-chart-pie icon"></i><span>Dashboard</span></span>
-            <span class="nav-item" onclick="trocarAba('estoque', this)"><i class="fas fa-boxes icon"></i><span>Estoque (Matéria-Prima)</span></span>
+            <span class="nav-item" onclick="trocarAba('estoque', this)"><i class="fas fa-boxes icon"></i><span>Estoque</span></span>
             <span class="nav-item" onclick="trocarAba('vendas', this)"><i class="fas fa-shopping-cart icon"></i><span>Vendas</span></span>
-            <span class="nav-item" onclick="trocarAba('financeiro', this)"><i class="fas fa-coins icon"></i><span>Despesas</span></span>
+            <span class="nav-item" onclick="trocarAba('financeiro', this)"><i class="fas fa-coins icon"></i><span>Despesas (Matéria-Prima)</span></span>
         </nav>
     </div>
     <div class="main-content">
@@ -90,7 +90,7 @@
         function trocarAba(aba, element) {
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
             element.classList.add('active');
-            const titulos = { dashboard: 'Dashboard', estoque: 'Gestão de Matéria-Prima', vendas: 'Nova Venda', financeiro: 'Despesas Operacionais' };
+            const titulos = { dashboard: 'Dashboard', estoque: 'Gestão de Estoque', vendas: 'Nova Venda', financeiro: 'Despesas (Matéria-Prima)' };
             document.getElementById('tituloPagina').innerText = titulos[aba];
             if(aba === 'dashboard') renderDashboard();
             if(aba === 'estoque') renderEstoque();
@@ -101,7 +101,6 @@
 
         // ================== 1. DASHBOARD ==================
         function renderDashboard() {
-            // Garantir que o array de histórico existe para evitar erro undefined
             if(!dados.historicoMensal) dados.historicoMensal = [];
 
             const totalVendas = dados.vendas.reduce((acc, v) => acc + v.total, 0);
@@ -133,11 +132,11 @@
             `;
         }
 
-        // ================== 2. ESTOQUE (MATÉRIA-PRIMA) ==================
+        // ================== 2. ESTOQUE ==================
         function renderEstoque() {
             let html = `
                 <div class="table-card">
-                    <h5>Cadastrar Matéria-Prima / Produto</h5>
+                    <h5>Cadastrar Produto</h5>
                     <div class="input-group-custom">
                         <input type="text" id="eNome" placeholder="Nome do produto" style="flex:2">
                         <input type="number" id="eCusto" placeholder="Custo (R$)" step="0.01" style="flex:1">
@@ -238,11 +237,11 @@
             renderVendas();
         };
 
-        // ================== 4. DESPESAS ==================
+        // ================== 4. DESPESAS (MATÉRIA-PRIMA) ==================
         function renderFinanceiro() {
             let html = `
                 <div class="table-card">
-                    <h5>Lançar Despesa Operacional (Tecidos, Etiquetas, Costura, etc.)</h5>
+                    <h5>Lançar Despesa com Matéria-Prima (Tecidos, Etiquetas, etc.)</h5>
                     <div class="input-group-custom">
                         <input type="text" id="fDesc" placeholder="Descrição (Ex: Compra de Tecido)" style="flex:2">
                         <input type="number" id="fValor" placeholder="Valor (R$)" step="0.01" style="flex:1">
@@ -250,7 +249,6 @@
                     </div>
                     <table class="table table-hover mt-3"><thead><tr><th>Descrição</th><th>Valor</th><th></th></tr></thead><tbody>
             `;
-            // Garantir que o array de despesas existe
             if(!dados.despesas) dados.despesas = [];
 
             dados.despesas.slice().reverse().forEach(d => {
@@ -272,12 +270,10 @@
             salvarDados(); renderFinanceiro();
         };
 
-        // ================== 5. FECHAMENTO MENSAL (Dia 1º) ==================
+        // ================== 5. FECHAMENTO MENSAL ==================
         function executarFechamentoMensal() {
             const hoje = new Date();
-            // Se hoje for dia 1, executa o fechamento
             if(hoje.getDate() === 1) {
-                // Garantir que os arrays existam antes de calcular
                 if(!dados.vendas) dados.vendas = [];
                 if(!dados.despesas) dados.despesas = [];
 
@@ -287,7 +283,6 @@
                 const lucroFinal = (totalVendas - totalCusto) - totalDespesas;
 
                 if(totalVendas > 0 || totalDespesas > 0) {
-                    // Salva o relatório do mês anterior
                     if(!dados.historicoMensal) dados.historicoMensal = [];
                     
                     dados.historicoMensal.push({
@@ -297,11 +292,10 @@
                         despesas: totalDespesas,
                         lucro: lucroFinal
                     });
-                    // Limpa o mês atual
                     dados.vendas = [];
                     dados.despesas = [];
                     salvarDados();
-                    console.log("Fechamento mensal realizado com sucesso!");
+                    console.log("Fechamento mensal realizado!");
                 }
             }
         }
@@ -319,13 +313,11 @@
         });
 
         // ================== INICIALIZAR ==================
-        // Garantir estruturas iniciais para evitar undefined
         if(!dados.vendas) dados.vendas = [];
         if(!dados.despesas) dados.despesas = [];
         if(!dados.historicoMensal) dados.historicoMensal = [];
         salvarDados();
 
-        // Verifica se é dia 1 para fazer o fechamento
         executarFechamentoMensal();
         renderDashboard();
     </script>
