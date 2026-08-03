@@ -4,10 +4,185 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vendas - G&A Kids</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/main.css">
+    <style>
+        .item-carrinho { border-bottom: 1px solid var(--gray-200); padding: 10px 0; display: flex; justify-content: space-between; align-items: center; }
+        .total-venda { font-size: 1.5rem; font-weight: bold; color: var(--primary); text-align: right; margin-top: 15px; }
+        .btn-vender { background: #10B981; color: white; border: none; width: 100%; padding: 12px; font-size: 1.1rem; border-radius: 8px; display: block !important; margin-top: 15px; transition: 0.2s; }
+        .btn-vender:hover { background: #059669; color: white; }
+        .vendas-container { display: grid; gap: 20px; grid-template-columns: 1fr 1.5fr; }
+        @media (max-width: 768px) { .vendas-container { grid-template-columns: 1fr; } }
+    </style>
 </head>
 <body>
-    <h1>Módulo Vendas</h1>
-    <script type="module" src="../assets/js/main.js"></script>
+    <div id="sidebar" class="sidebar">
+        <div class="brand">
+            <div class="logo">G&A</div>
+            <span class="name">G&A Kids</span>
+        </div>
+        <nav class="nav">
+            <a href="../index.html" class="nav-item"><i class="fas fa-chart-pie icon"></i><span>Dashboard</span></a>
+            <a href="../estoque/" class="nav-item"><i class="fas fa-boxes icon"></i><span>Estoque</span></a>
+            <a href="#" class="nav-item active"><i class="fas fa-shopping-cart icon"></i><span>Vendas</span></a>
+            <a href="../clientes/" class="nav-item"><i class="fas fa-users icon"></i><span>Clientes</span></a>
+            <a href="../fornecedores/" class="nav-item"><i class="fas fa-truck icon"></i><span>Fornecedores</span></a>
+            <a href="../login/" class="nav-item sair"><i class="fas fa-sign-out-alt icon"></i><span>Sair</span></a>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <header class="header">
+            <div class="left">
+                <button class="toggle-sidebar" id="toggleSidebar"><i class="fas fa-bars"></i></button>
+                <h1 class="title">Nova Venda</h1>
+            </div>
+            <div class="right">
+                <button class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i></button>
+            </div>
+        </header>
+
+        <div class="vendas-container">
+            <!-- COLUNA ESQUERDA -->
+            <div class="card">
+                <h5 class="mb-3">1. Selecione o Produto</h5>
+                <div class="mb-3">
+                    <label class="form-label">Produto</label>
+                    <select class="form-select" id="selectProduto">
+                        <option value="">-- Escolha um produto --</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Quantidade</label>
+                    <input type="number" class="form-control" id="inputQtd" value="1" min="1">
+                </div>
+                <button class="btn btn-primary w-100" onclick="adicionarAoCarrinho()">
+                    <i class="fas fa-cart-plus"></i> Adicionar ao Carrinho
+                </button>
+            </div>
+
+            <!-- COLUNA DIREITA -->
+            <div class="card">
+                <h5 class="mb-3">2. Itens do Carrinho</h5>
+                <div id="carrinhoItens">
+                    <p class="text-muted">Nenhum item adicionado ainda.</p>
+                </div>
+                <div class="total-venda">
+                    Total: <span id="totalCarrinho">R$ 0,00</span>
+                </div>
+                <button class="btn-vender" onclick="finalizarVenda()">
+                    <i class="fas fa-check-circle"></i> Finalizar Venda e Baixar Estoque
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // DADOS DO ESTOQUE (Mesma base do Estoque)
+        let produtosEstoque = [
+            { id: 1, nome: 'Camiseta Azul', preco: 29.90, qtd: 50 },
+            { id: 2, nome: 'Vestido Floral', preco: 49.90, qtd: 5 },
+            { id: 3, nome: 'Calça Jeans', preco: 69.90, qtd: 0 },
+            { id: 4, nome: 'Tênis Esportivo', preco: 89.90, qtd: 12 }
+        ];
+
+        let carrinho = [];
+
+        function carregarSelect() {
+            const select = document.getElementById('selectProduto');
+            select.innerHTML = '<option value="">-- Escolha um produto --</option>';
+            produtosEstoque.forEach(p => {
+                if(p.qtd > 0) {
+                    const option = document.createElement('option');
+                    option.value = p.id;
+                    option.textContent = `${p.nome} (${p.qtd} un) - R$ ${p.preco.toFixed(2)}`;
+                    select.appendChild(option);
+                }
+            });
+        }
+
+        function adicionarAoCarrinho() {
+            const id = parseInt(document.getElementById('selectProduto').value);
+            const qtd = parseInt(document.getElementById('inputQtd').value);
+            if(!id || qtd < 1) return alert("Selecione um produto válido.");
+            
+            const produto = produtosEstoque.find(p => p.id === id);
+            if(qtd > produto.qtd) return alert(`Estoque insuficiente! Temos ${produto.qtd} unidades.`);
+
+            const itemCarrinho = carrinho.find(p => p.id === id);
+            if(itemCarrinho) itemCarrinho.qtd += qtd;
+            else carrinho.push({ id: produto.id, nome: produto.nome, preco: produto.preco, qtd: qtd });
+            
+            renderizarCarrinho();
+        }
+
+        function renderizarCarrinho() {
+            const container = document.getElementById('carrinhoItens');
+            container.innerHTML = '';
+            let total = 0;
+
+            if(carrinho.length === 0) {
+                container.innerHTML = '<p class="text-muted">Nenhum item adicionado ainda.</p>';
+            } else {
+                carrinho.forEach((item, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'item-carrinho';
+                    div.innerHTML = `
+                        <div><strong>${item.nome}</strong><br><small>Qtd: ${item.qtd} x R$ ${item.preco.toFixed(2)}</small></div>
+                        <div><strong>R$ ${(item.preco * item.qtd).toFixed(2)}</strong>
+                        <button class="btn btn-sm btn-outline-danger ms-2" onclick="removerCarrinho(${index})"><i class="fas fa-times"></i></button></div>
+                    `;
+                    container.appendChild(div);
+                    total += item.preco * item.qtd;
+                });
+            }
+            document.getElementById('totalCarrinho').textContent = `R$ ${total.toFixed(2)}`;
+        }
+
+        function removerCarrinho(index) {
+            carrinho.splice(index, 1);
+            renderizarCarrinho();
+        }
+
+        function finalizarVenda() {
+            if(carrinho.length === 0) return alert("Carrinho vazio!");
+            
+            carrinho.forEach(itemVenda => {
+                const itemEstoque = produtosEstoque.find(p => p.id === itemVenda.id);
+                if(itemEstoque) itemEstoque.qtd -= itemVenda.qtd;
+            });
+
+            alert("Venda finalizada! Estoque atualizado.");
+            carrinho = [];
+            renderizarCarrinho();
+            carregarSelect();
+        }
+
+        // INICIALIZAÇÃO
+        document.addEventListener('DOMContentLoaded', () => {
+            carregarSelect();
+            
+            // Dark Mode
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            const themeToggle = document.getElementById('themeToggle');
+            const updateIcon = () => { themeToggle.innerHTML = document.documentElement.getAttribute('data-theme') === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>'; };
+            updateIcon();
+            themeToggle.addEventListener('click', () => {
+                const current = document.documentElement.getAttribute('data-theme');
+                document.documentElement.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
+                localStorage.setItem('theme', current === 'dark' ? 'light' : 'dark');
+                updateIcon();
+            });
+
+            const toggle = document.getElementById('toggleSidebar');
+            const sidebar = document.getElementById('sidebar');
+            toggle.addEventListener('click', () => { if (window.innerWidth <= 768) sidebar.classList.toggle('open'); });
+        });
+    </script>
 </body>
 </html>

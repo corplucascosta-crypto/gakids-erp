@@ -4,10 +4,178 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Estoque - G&A Kids</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/main.css">
 </head>
 <body>
-    <h1>Módulo Estoque</h1>
-    <script type="module" src="../assets/js/main.js"></script>
+    <div id="sidebar" class="sidebar">
+        <div class="brand"><div class="logo">G&A</div><span class="name">G&A Kids</span></div>
+        <nav class="nav">
+            <a href="../index.html" class="nav-item"><i class="fas fa-chart-pie icon"></i><span>Dashboard</span></a>
+            <a href="#" class="nav-item active"><i class="fas fa-boxes icon"></i><span>Estoque</span></a>
+            <a href="../vendas/" class="nav-item"><i class="fas fa-shopping-cart icon"></i><span>Vendas</span></a>
+            <a href="../clientes/" class="nav-item"><i class="fas fa-users icon"></i><span>Clientes</span></a>
+            <a href="../fornecedores/" class="nav-item"><i class="fas fa-truck icon"></i><span>Fornecedores</span></a>
+            <a href="../login/" class="nav-item sair"><i class="fas fa-sign-out-alt icon"></i><span>Sair</span></a>
+        </nav>
+    </div>
+    <div class="main-content">
+        <header class="header">
+            <div class="left"><button class="toggle-sidebar" id="toggleSidebar"><i class="fas fa-bars"></i></button><h1 class="title">Gestão de Estoque</h1></div>
+            <div class="right"><button class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i></button></div>
+        </header>
+        <div id="conteudo" class="dashboard-grid">
+            <div style="grid-column: 1 / -1;">
+                <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#modalProduto"><i class="fas fa-plus"></i> Novo Produto</button>
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead><tr><th>Código</th><th>Produto</th><th>Preço</th><th>Qtd</th><th>Ações</th></tr></thead>
+                        <tbody id="tabelaEstoque"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalProduto" tabindex="-1">
+        <div class="modal-dialog"><div class="modal-content">
+            <div class="modal-header"><h5 class="modal-title">Cadastrar Produto</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <form id="formProduto">
+                    <div class="mb-3"><label>Nome</label><input type="text" class="form-control" id="produtoNome" required></div>
+                    <div class="row">
+                        <div class="col-6 mb-3"><label>Preço (R$)</label><input type="number" class="form-control" id="produtoPreco" step="0.01" required></div>
+                        <div class="col-6 mb-3"><label>Qtd</label><input type="number" class="form-control" id="produtoQtd" required></div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="salvarProduto()">Salvar</button>
+            </div>
+        </div></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script type="module">
+        import { db } from '../services/supabase.js';
+        
+        async function renderizarEstoque() {
+            const tbody = document.getElementById('tabelaEstoque');
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted"><i class="fas fa-spinner fa-spin"></i> Conectando ao banco...</td></tr>';
+            
+            try {
+                // Tenta buscar os dados
+                const { data, error } = await db.produtos.listar();
+                
+                // Se houver erro de rede, cai no catch
+                if (error) throw error;
+
+                // Se não houver dados, mostra mensagem
+                if (!data || data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Nenhum produto cadastrado ainda.</td></tr>';
+                    return;
+                }
+
+                // Renderiza os dados
+                tbody.innerHTML = '';
+                data.forEach(p => {
+                    const badge = p.quantidade === 0 ? 'bg-danger' : p.quantidade < 10 ? 'bg-warning text-dark' : 'bg-success';
+                    tbody.innerHTML += `<tr>
+                        <td>#${p.id}</td>
+                        <td>${p.nome}</td>
+                        <td>R$ ${Number(p.preco).toFixed(2)}</td>
+                        <td><span class="badge ${badge}">${p.quantidade}</span></td>
+                        <td><button class="btn btn-sm btn-outline-danger" onclick="excluirProduto(${p.id})"><i class="fas fa-trash"></i></button></td>
+                    </tr>`;
+                });
+
+            } catch (error) {
+                console.error("Erro detalhado:", error);
+                // Exibe mensagem amigável caso a rede bloqueie
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="text-center text-danger p-4">
+                            <i class="fas fa-wifi-slash fa-2x mb-2"></i><br>
+                            <strong>Erro de Conexão</strong><br>
+                            <small>Não foi possível conectar ao servidor.</small>
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        window.salvarProduto = async function() {
+            const nome = document.getElementById('produtoNome').value;
+            const preco = parseFloat(document.getElementById('produtoPreco').value);
+            const quantidade = parseInt(document.getElementById('produtoQtd').value);
+            
+            if(!nome || isNaN(preco) || isNaN(quantidade)) {
+                return Swal.fire('Atenção', 'Preencha todos os campos corretamente.', 'warning');
+            }
+
+            const { error } = await db.produtos.criar(nome, preco, quantidade);
+            if(error) return Swal.fire('Erro', 'Erro ao salvar: ' + error.message, 'error');
+            
+            const modalEl = document.getElementById('modalProduto');
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            if (modal) modal.hide();
+
+            const form = document.getElementById('formProduto');
+            if (form) form.reset();
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Sucesso!',
+                text: 'Produto cadastrado com sucesso!',
+                timer: 2000,
+                showConfirmButton: false
+            });
+
+            renderizarEstoque();
+        };
+
+        window.excluirProduto = async function(id) {
+            const result = await Swal.fire({
+                title: 'Tem certeza?',
+                text: "Esta ação não pode ser desfeita!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sim, excluir!',
+                cancelButtonText: 'Cancelar'
+            });
+            if (!result.isConfirmed) return;
+            
+            const { error } = await db.produtos.deletar(id);
+            if(!error) {
+                Swal.fire('Excluído!', 'Produto removido com sucesso.', 'success');
+                renderizarEstoque();
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderizarEstoque();
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            const themeToggle = document.getElementById('themeToggle');
+            const updateIcon = () => { themeToggle.innerHTML = document.documentElement.getAttribute('data-theme') === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>'; };
+            updateIcon();
+            themeToggle.addEventListener('click', () => {
+                const current = document.documentElement.getAttribute('data-theme');
+                document.documentElement.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
+                localStorage.setItem('theme', current === 'dark' ? 'light' : 'dark');
+                updateIcon();
+            });
+            const toggle = document.getElementById('toggleSidebar');
+            const sidebar = document.getElementById('sidebar');
+            toggle.addEventListener('click', () => { if (window.innerWidth <= 768) sidebar.classList.toggle('open'); });
+        });
+    </script>
 </body>
 </html>

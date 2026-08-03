@@ -4,10 +4,120 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fornecedores - G&A Kids</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/main.css">
 </head>
 <body>
-    <h1>Módulo Fornecedores</h1>
-    <script type="module" src="../assets/js/main.js"></script>
+    <div id="sidebar" class="sidebar">
+        <div class="brand"><div class="logo">G&A</div><span class="name">G&A Kids</span></div>
+        <nav class="nav">
+            <a href="../index.html" class="nav-item"><i class="fas fa-chart-pie icon"></i><span>Dashboard</span></a>
+            <a href="../estoque/" class="nav-item"><i class="fas fa-boxes icon"></i><span>Estoque</span></a>
+            <a href="../vendas/" class="nav-item"><i class="fas fa-shopping-cart icon"></i><span>Vendas</span></a>
+            <a href="../clientes/" class="nav-item"><i class="fas fa-users icon"></i><span>Clientes</span></a>
+            <a href="#" class="nav-item active"><i class="fas fa-truck icon"></i><span>Fornecedores</span></a>
+            <a href="../login/" class="nav-item sair"><i class="fas fa-sign-out-alt icon"></i><span>Sair</span></a>
+        </nav>
+    </div>
+    <div class="main-content">
+        <header class="header">
+            <div class="left"><button class="toggle-sidebar" id="toggleSidebar"><i class="fas fa-bars"></i></button><h1 class="title">Gestão de Fornecedores</h1></div>
+            <div class="right"><button class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i></button></div>
+        </header>
+        <div id="conteudo" class="dashboard-grid">
+            <div style="grid-column: 1 / -1;">
+                <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#modalFornecedor"><i class="fas fa-truck-loading"></i> Novo Fornecedor</button>
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead><tr><th>#ID</th><th>Empresa</th><th>Contato</th><th>Telefone</th><th>Categoria</th><th>Ações</th></tr></thead>
+                        <tbody id="tabelaFornecedores"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalFornecedor" tabindex="-1">
+        <div class="modal-dialog"><div class="modal-content">
+            <div class="modal-header"><h5 class="modal-title">Cadastrar Fornecedor</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <div class="mb-3"><label>Empresa</label><input type="text" class="form-control" id="forEmpresa" required></div>
+                <div class="row">
+                    <div class="col-md-6 mb-3"><label>Contato</label><input type="text" class="form-control" id="forContato"></div>
+                    <div class="col-md-6 mb-3"><label>Telefone</label><input type="text" class="form-control" id="forTelefone"></div>
+                </div>
+                <div class="mb-3"><label>Categoria</label><input type="text" class="form-control" id="forCategoria"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="salvarFornecedor()">Salvar</button>
+            </div>
+        </div></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module">
+        import { db } from '../services/supabase.js';
+        
+        async function renderizarFornecedores() {
+            const tbody = document.getElementById('tabelaFornecedores');
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Carregando...</td></tr>';
+            const { data, error } = await db.fornecedores.listar();
+            if(error) return alert("Erro ao carregar fornecedores");
+            tbody.innerHTML = '';
+            data.forEach(f => {
+                tbody.innerHTML += `<tr>
+                    <td>#${f.id}</td>
+                    <td>${f.empresa}</td>
+                    <td>${f.contato || '-'}</td>
+                    <td>${f.telefone || '-'}</td>
+                    <td><span class="badge bg-light text-dark border">${f.categoria || 'Geral'}</span></td>
+                    <td><button class="btn btn-sm btn-outline-danger" onclick="excluirFornecedor(${f.id})"><i class="fas fa-trash"></i></button></td>
+                </tr>`;
+            });
+        }
+
+        window.salvarFornecedor = async function() {
+            const empresa = document.getElementById('forEmpresa').value;
+            const contato = document.getElementById('forContato').value;
+            const telefone = document.getElementById('forTelefone').value;
+            const categoria = document.getElementById('forCategoria').value;
+            if(!empresa) return alert("Informe a empresa");
+            const { error } = await db.fornecedores.criar(empresa, contato, telefone, categoria);
+            if(error) return alert("Erro ao salvar: " + error.message);
+            bootstrap.Modal.getInstance(document.getElementById('modalFornecedor')).hide();
+            document.getElementById('forEmpresa').value = '';
+            document.getElementById('forContato').value = '';
+            document.getElementById('forTelefone').value = '';
+            document.getElementById('forCategoria').value = '';
+            renderizarFornecedores();
+        };
+
+        window.excluirFornecedor = async function(id) {
+            if(!confirm("Excluir fornecedor?")) return;
+            const { error } = await db.fornecedores.deletar(id);
+            if(!error) renderizarFornecedores();
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderizarFornecedores();
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            const themeToggle = document.getElementById('themeToggle');
+            const updateIcon = () => { themeToggle.innerHTML = document.documentElement.getAttribute('data-theme') === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>'; };
+            updateIcon();
+            themeToggle.addEventListener('click', () => {
+                const current = document.documentElement.getAttribute('data-theme');
+                document.documentElement.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
+                localStorage.setItem('theme', current === 'dark' ? 'light' : 'dark');
+                updateIcon();
+            });
+            const toggle = document.getElementById('toggleSidebar');
+            const sidebar = document.getElementById('sidebar');
+            toggle.addEventListener('click', () => { if (window.innerWidth <= 768) sidebar.classList.toggle('open'); });
+        });
+    </script>
 </body>
 </html>
