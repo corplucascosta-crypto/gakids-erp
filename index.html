@@ -4,123 +4,55 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>G&A Kids - ERP</title>
-    
-    <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Custom CSS -->
     <link rel="stylesheet" href="/assets/css/main.css">
-    
-    <!-- PWA Manifest -->
     <link rel="manifest" href="/pwa/manifest.json">
     <meta name="theme-color" content="#7C3AED">
 </head>
 <body>
-    <!-- Sidebar -->
     <div id="sidebar" class="sidebar">
         <div class="brand">
             <div class="logo">G&A</div>
             <span class="name">G&A Kids</span>
         </div>
         <nav class="nav">
-            <a href="/dashboard/" class="nav-item active">
-                <i class="fas fa-chart-pie icon"></i>
-                <span class="label">Dashboard</span>
-            </a>
-            <a href="/financeiro/" class="nav-item">
-                <i class="fas fa-coins icon"></i>
-                <span class="label">Financeiro</span>
-            </a>
-            <a href="/estoque/" class="nav-item">
-                <i class="fas fa-boxes icon"></i>
-                <span class="label">Estoque</span>
-            </a>
-            <a href="/vendas/" class="nav-item">
-                <i class="fas fa-shopping-cart icon"></i>
-                <span class="label">Vendas</span>
-                <span class="badge">3</span>
-            </a>
-            <a href="/clientes/" class="nav-item">
-                <i class="fas fa-users icon"></i>
-                <span class="label">Clientes</span>
-            </a>
-            <a href="/fornecedores/" class="nav-item">
-                <i class="fas fa-truck icon"></i>
-                <span class="label">Fornecedores</span>
-            </a>
-            <a href="/relatorios/" class="nav-item">
-                <i class="fas fa-file-alt icon"></i>
-                <span class="label">Relatórios</span>
-            </a>
-            <a href="/configuracoes/" class="nav-item">
-                <i class="fas fa-cog icon"></i>
-                <span class="label">Configurações</span>
-            </a>
+            <a href="/dashboard/" class="nav-item active"><i class="fas fa-chart-pie icon"></i><span class="label">Dashboard</span></a>
+            <a href="/financeiro/" class="nav-item"><i class="fas fa-coins icon"></i><span class="label">Financeiro</span></a>
+            <a href="/estoque/" class="nav-item"><i class="fas fa-boxes icon"></i><span class="label">Estoque</span></a>
+            <a href="/vendas/" class="nav-item"><i class="fas fa-shopping-cart icon"></i><span class="label">Vendas</span><span class="badge">3</span></a>
+            <a href="/clientes/" class="nav-item"><i class="fas fa-users icon"></i><span class="label">Clientes</span></a>
+            <a href="/fornecedores/" class="nav-item"><i class="fas fa-truck icon"></i><span class="label">Fornecedores</span></a>
+            <a href="/relatorios/" class="nav-item"><i class="fas fa-file-alt icon"></i><span class="label">Relatórios</span></a>
+            <a href="/configuracoes/" class="nav-item"><i class="fas fa-cog icon"></i><span class="label">Configurações</span></a>
         </nav>
     </div>
 
-    <!-- Main Content -->
     <div class="main-content">
-        <!-- Header -->
         <header class="header">
             <div class="left">
-                <button class="toggle-sidebar" id="toggleSidebar">
-                    <i class="fas fa-bars"></i>
-                </button>
+                <button class="toggle-sidebar" id="toggleSidebar"><i class="fas fa-bars"></i></button>
                 <h1 class="title">Dashboard</h1>
             </div>
             <div class="right">
-                <button class="theme-toggle" id="themeToggle">
-                    <i class="fas fa-moon"></i>
-                </button>
-                <div class="user-menu">
-                    <div class="avatar">A</div>
-                    <span class="name">Admin</span>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
+                <button class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i></button>
+                <div class="user-menu"><div class="avatar">A</div><span class="name">Admin</span><i class="fas fa-chevron-down"></i></div>
             </div>
         </header>
-
-        <!-- Dashboard Grid -->
-        <div id="dashboardGrid" class="dashboard-grid">
-            <!-- Cards serão inseridos via JavaScript -->
-        </div>
+        <div id="dashboardGrid" class="dashboard-grid"></div>
     </div>
 
-    <!-- Mobile Navigation -->
     <nav class="mobile-nav">
-        <a href="/dashboard/" class="nav-item active">
-            <i class="fas fa-chart-pie icon"></i>
-            <span>Dashboard</span>
-        </a>
-        <a href="/financeiro/" class="nav-item">
-            <i class="fas fa-coins icon"></i>
-            <span>Financeiro</span>
-        </a>
-        <a href="/estoque/" class="nav-item">
-            <i class="fas fa-boxes icon"></i>
-            <span>Estoque</span>
-        </a>
-        <a href="/vendas/" class="nav-item">
-            <i class="fas fa-shopping-cart icon"></i>
-            <span>Vendas</span>
-        </a>
-        <a href="/configuracoes/" class="nav-item">
-            <i class="fas fa-cog icon"></i>
-            <span>Config.</span>
-        </a>
+        <a href="/dashboard/" class="nav-item active"><i class="fas fa-chart-pie icon"></i><span>Dashboard</span></a>
+        <a href="/financeiro/" class="nav-item"><i class="fas fa-coins icon"></i><span>Financeiro</span></a>
+        <a href="/estoque/" class="nav-item"><i class="fas fa-boxes icon"></i><span>Estoque</span></a>
+        <a href="/vendas/" class="nav-item"><i class="fas fa-shopping-cart icon"></i><span>Vendas</span></a>
+        <a href="/configuracoes/" class="nav-item"><i class="fas fa-cog icon"></i><span>Config.</span></a>
     </nav>
 
-    <!-- Toast Container -->
     <div id="toastContainer" class="toast-container"></div>
 
-    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -128,7 +60,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
-    <!-- App Scripts -->
     <script type="module" src="/assets/js/main.js"></script>
 </body>
 </html>
