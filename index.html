@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>G&A Kids - Gestão Inteligente</title>
+    <title>G&A Kids - Gestão de Produção</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -17,6 +17,7 @@
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: var(--gray-50); color: var(--gray-900); transition: 0.3s; }
+        
         .sidebar { position: fixed; left: 0; top: 0; width: 240px; height: 100vh; background: var(--white); border-right: 1px solid var(--gray-200); display: flex; flex-direction: column; z-index: 1000; }
         .sidebar .brand { padding: 24px 20px; border-bottom: 1px solid var(--gray-200); display: flex; align-items: center; gap: 12px; }
         .sidebar .brand .logo { width: 38px; height: 38px; border-radius: 10px; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; }
@@ -25,6 +26,8 @@
         .sidebar .nav .nav-item { display: flex; align-items: center; gap: 14px; padding: 10px 14px; color: var(--gray-500); text-decoration: none; border-radius: 8px; font-weight: 500; cursor: pointer; transition: 0.2s; }
         .sidebar .nav .nav-item:hover { background: var(--gray-50); color: var(--gray-900); }
         .sidebar .nav .nav-item.active { background: var(--primary-light); color: var(--primary); }
+        .sidebar .nav .nav-item.sair { margin-top: auto; border-top: 1px solid var(--gray-200); padding-top: 16px; color: var(--danger); }
+        
         .main-content { margin-left: 240px; padding: 24px; min-height: 100vh; }
         .header { display: flex; align-items: center; justify-content: space-between; background: var(--white); padding: 16px 24px; border-radius: 12px; border: 1px solid var(--gray-200); margin-bottom: 24px; }
         .header .left { display: flex; align-items: center; gap: 16px; }
@@ -40,8 +43,10 @@
         .btn-primary:hover { background: #5B21B6; color: white; }
         .btn-success { background: var(--success); color: white; border: none; padding: 8px 16px; border-radius: 8px; transition: 0.2s; }
         .btn-success:hover { background: #059669; color: white; }
+        .btn-fechar { background: var(--danger); color: white; border: none; padding: 8px 16px; border-radius: 8px; transition: 0.2s; width: 100%; margin-top: 10px; }
+        .btn-fechar:hover { background: #b91c1c; color: white; }
         .input-group-custom { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px; }
-        .input-group-custom input, .input-group-custom select { padding: 8px 12px; border: 1px solid var(--gray-200); border-radius: 8px; flex: 1; min-width: 120px; }
+        .input-group-custom input, .input-group-custom select, .input-group-custom textarea { padding: 8px 12px; border: 1px solid var(--gray-200); border-radius: 8px; flex: 1; min-width: 120px; }
         .estado-badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
         .badge-ok { background: #D1FAE5; color: #065F46; }
         .badge-baixo { background: #FEF3C7; color: #92400E; }
@@ -54,9 +59,9 @@
         <div class="brand"><div class="logo">G&A</div><span class="name">G&A Kids</span></div>
         <nav class="nav">
             <span class="nav-item active" onclick="trocarAba('dashboard', this)"><i class="fas fa-chart-pie icon"></i><span>Dashboard</span></span>
-            <span class="nav-item" onclick="trocarAba('estoque', this)"><i class="fas fa-boxes icon"></i><span>Estoque</span></span>
-            <span class="nav-item" onclick="trocarAba('financeiro', this)"><i class="fas fa-coins icon"></i><span>Financeiro</span></span>
+            <span class="nav-item" onclick="trocarAba('estoque', this)"><i class="fas fa-boxes icon"></i><span>Estoque (Matéria-Prima)</span></span>
             <span class="nav-item" onclick="trocarAba('vendas', this)"><i class="fas fa-shopping-cart icon"></i><span>Vendas</span></span>
+            <span class="nav-item" onclick="trocarAba('financeiro', this)"><i class="fas fa-coins icon"></i><span>Despesas</span></span>
         </nav>
     </div>
     <div class="main-content">
@@ -68,16 +73,12 @@
     </div>
 
     <script>
-        // ================== BANCO DE DADOS LOCAL ==================
+        // ================== BANCO DE DADOS ==================
         let dados = JSON.parse(localStorage.getItem('gakids_data')) || {
-            produtos: [
-                { id: 1, nome: 'Camiseta Azul', preco: 29.90, qtd: 50 },
-                { id: 2, nome: 'Vestido Floral', preco: 49.90, qtd: 5 },
-                { id: 3, nome: 'Calça Jeans', preco: 69.90, qtd: 0 },
-                { id: 4, nome: 'Tênis Esportivo', preco: 89.90, qtd: 12 }
-            ],
-            vendas: [],
-            transacoes: []
+            produtos: [], // Matéria-prima / Produtos
+            vendas: [],   // Vendas realizadas
+            despesas: [], // Despesas manuais (tecidos, etiquetas, etc)
+            cicloAtual: null // Mês atual
         };
 
         function salvarDados() { localStorage.setItem('gakids_data', JSON.stringify(dados)); }
@@ -85,70 +86,76 @@
         const moeda = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
         const numero = (v) => new Intl.NumberFormat('pt-BR').format(v);
 
+        // ================== SISTEMA DE ABAS ==================
         function trocarAba(aba, element) {
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
             element.classList.add('active');
-            const titulos = { dashboard: 'Dashboard', estoque: 'Gestão de Estoque', financeiro: 'Gestão Financeira', vendas: 'Nova Venda' };
+            const titulos = { dashboard: 'Dashboard', estoque: 'Gestão de Matéria-Prima', vendas: 'Nova Venda', financeiro: 'Despesas Operacionais' };
             document.getElementById('tituloPagina').innerText = titulos[aba];
             if(aba === 'dashboard') renderDashboard();
             if(aba === 'estoque') renderEstoque();
-            if(aba === 'financeiro') renderFinanceiro();
             if(aba === 'vendas') renderVendas();
+            if(aba === 'financeiro') renderFinanceiro();
         }
         window.trocarAba = trocarAba;
 
         // ================== 1. DASHBOARD ==================
         function renderDashboard() {
             const totalVendas = dados.vendas.reduce((acc, v) => acc + v.total, 0);
-            const totalDespesas = dados.transacoes.filter(t => t.tipo === 'saida').reduce((acc, t) => acc + t.valor, 0);
-            const lucro = totalVendas - totalDespesas;
+            const totalCusto = dados.vendas.reduce((acc, v) => acc + v.custoTotal, 0);
+            const totalDespesas = dados.despesas.reduce((acc, d) => acc + d.valor, 0);
+            const lucroBruto = totalVendas - totalCusto;
+            const lucroLiquido = lucroBruto - totalDespesas;
+            
             const estoqueTotal = dados.produtos.reduce((acc, p) => acc + p.qtd, 0);
             const semEstoque = dados.produtos.filter(p => p.qtd === 0).length;
             const qtdVendas = dados.vendas.length;
             const ticketMedio = qtdVendas > 0 ? (totalVendas / qtdVendas) : 0;
+
             let ranking = {};
             dados.vendas.forEach(v => { v.itens.forEach(item => { ranking[item.nome] = (ranking[item.nome] || 0) + item.qtd; }); });
             let topProduto = Object.keys(ranking).sort((a,b) => ranking[b] - ranking[a])[0] || 'Nenhum';
 
             document.getElementById('conteudoApp').innerHTML = `
                 <div class="dashboard-grid">
-                    <div class="card"><div class="header"><span class="label">Vendas (Mês)</span></div><div class="value" style="color:var(--success)">${moeda(totalVendas)}</div></div>
-                    <div class="card"><div class="header"><span class="label">Despesas (Mês)</span></div><div class="value" style="color:var(--danger)">${moeda(totalDespesas)}</div></div>
-                    <div class="card"><div class="header"><span class="label">Lucro Líquido</span></div><div class="value" style="color:var(--primary)">${moeda(lucro)}</div></div>
-                    <div class="card"><div class="header"><span class="label">Ticket Médio</span></div><div class="value">${moeda(ticketMedio)}</div></div>
-                    <div class="card"><div class="header"><span class="label">Itens em Estoque</span></div><div class="value">${numero(estoqueTotal)}</div></div>
-                    <div class="card"><div class="header"><span class="label">Produtos Esgotados</span></div><div class="value" style="color:var(--danger)">${numero(semEstoque)}</div></div>
-                    <div class="card"><div class="header"><span class="label">Total de Vendas</span></div><div class="value">${numero(qtdVendas)}</div></div>
-                    <div class="card"><div class="header"><span class="label">Mais Vendido</span></div><div class="value" style="font-size: 18px;">${topProduto}</div></div>
+                    <div class="card"><div class="header"><span class="label">💰 Vendas</span></div><div class="value" style="color:var(--success)">${moeda(totalVendas)}</div></div>
+                    <div class="card"><div class="header"><span class="label">📦 Custo Total</span></div><div class="value" style="color:var(--primary)">${moeda(totalCusto)}</div></div>
+                    <div class="card"><div class="header"><span class="label">📉 Despesas</span></div><div class="value" style="color:var(--danger)">${moeda(totalDespesas)}</div></div>
+                    <div class="card"><div class="header"><span class="label">✅ Lucro Líquido</span></div><div class="value" style="color:${lucroLiquido >= 0 ? 'var(--success)' : 'var(--danger)'}">${moeda(lucroLiquido)}</div></div>
+                    <div class="card"><div class="header"><span class="label">🎫 Ticket Médio</span></div><div class="value">${moeda(ticketMedio)}</div></div>
+                    <div class="card"><div class="header"><span class="label">📦 Estoque</span></div><div class="value">${numero(estoqueTotal)} un</div></div>
+                    <div class="card"><div class="header"><span class="label">⚠️ Esgotados</span></div><div class="value" style="color:var(--danger)">${numero(semEstoque)}</div></div>
+                    <div class="card"><div class="header"><span class="label">🏆 Mais Vendido</span></div><div class="value" style="font-size: 18px;">${topProduto}</div></div>
                 </div>
             `;
         }
 
-        // ================== 2. ESTOQUE ==================
+        // ================== 2. ESTOQUE (MATÉRIA-PRIMA) ==================
         function renderEstoque() {
             let html = `
                 <div class="table-card">
+                    <h5>Cadastrar Matéria-Prima / Produto</h5>
                     <div class="input-group-custom">
                         <input type="text" id="eNome" placeholder="Nome do produto" style="flex:2">
-                        <input type="number" id="ePreco" placeholder="Preço (R$)" step="0.01" style="flex:1">
+                        <input type="number" id="eCusto" placeholder="Custo (R$)" step="0.01" style="flex:1">
                         <input type="number" id="eQtd" placeholder="Qtd" style="flex:1">
                         <button class="btn-primary" onclick="adicionarProduto()">+ Adicionar</button>
                     </div>
-                    <table class="table table-hover"><thead><tr><th>#</th><th>Produto</th><th>Preço</th><th>Qtd</th><th>Status</th><th></th></tr></thead><tbody>
+                    <table class="table table-hover mt-3"><thead><tr><th>#</th><th>Produto</th><th>Custo</th><th>Qtd</th><th>Status</th><th></th></tr></thead><tbody>
             `;
             dados.produtos.forEach(p => {
                 let badge = p.qtd === 0 ? 'badge-zero' : p.qtd < 10 ? 'badge-baixo' : 'badge-ok';
                 let status = p.qtd === 0 ? 'Esgotado' : p.qtd < 10 ? 'Baixo' : 'OK';
-                html += `<tr><td>#${p.id}</td><td>${p.nome}</td><td>${moeda(p.preco)}</td><td>${p.qtd}</td><td><span class="estado-badge ${badge}">${status}</span></td><td><button class="btn btn-sm btn-outline-danger" onclick="excluirProduto(${p.id})"><i class="fas fa-trash"></i></button></td></tr>`;
+                html += `<tr><td>#${p.id}</td><td>${p.nome}</td><td>${moeda(p.custo)}</td><td>${p.qtd}</td><td><span class="estado-badge ${badge}">${status}</span></td><td><button class="btn btn-sm btn-outline-danger" onclick="excluirProduto(${p.id})"><i class="fas fa-trash"></i></button></td></tr>`;
             });
             html += `</tbody></table></div>`;
             document.getElementById('conteudoApp').innerHTML = html;
         }
 
         window.adicionarProduto = function() {
-            const n = document.getElementById('eNome').value, p = parseFloat(document.getElementById('ePreco').value), q = parseInt(document.getElementById('eQtd').value);
-            if(!n || isNaN(p) || isNaN(q)) return alert("Preencha todos os campos");
-            dados.produtos.push({ id: Date.now(), nome: n, preco: p, qtd: q });
+            const n = document.getElementById('eNome').value, c = parseFloat(document.getElementById('eCusto').value), q = parseInt(document.getElementById('eQtd').value);
+            if(!n || isNaN(c) || isNaN(q)) return alert("Preencha todos os campos");
+            dados.produtos.push({ id: Date.now(), nome: n, custo: c, qtd: q });
             salvarDados(); renderEstoque();
         };
         window.excluirProduto = function(id) {
@@ -157,47 +164,7 @@
             salvarDados(); renderEstoque();
         };
 
-        // ================== 3. FINANCEIRO ==================
-        function renderFinanceiro() {
-            const totalEntradas = dados.transacoes.filter(t => t.tipo === 'entrada').reduce((acc, t) => acc + t.valor, 0);
-            const totalSaidas = dados.transacoes.filter(t => t.tipo === 'saida').reduce((acc, t) => acc + t.valor, 0);
-            const saldo = totalEntradas - totalSaidas;
-
-            let html = `
-                <div class="dashboard-grid">
-                    <div class="card"><div class="header"><span class="label">Saldo Atual</span></div><div class="value" style="color:${saldo >= 0 ? 'var(--success)' : 'var(--danger)'}">${moeda(saldo)}</div></div>
-                    <div class="card"><div class="header"><span class="label">Entradas</span></div><div class="value" style="color:var(--success)">${moeda(totalEntradas)}</div></div>
-                    <div class="card"><div class="header"><span class="label">Saídas</span></div><div class="value" style="color:var(--danger)">${moeda(totalSaidas)}</div></div>
-                </div>
-                <div class="table-card">
-                    <div class="input-group-custom">
-                        <select id="fTipo"><option value="entrada">Entrada</option><option value="saida">Saída</option></select>
-                        <input type="text" id="fDesc" placeholder="Descrição" style="flex:2">
-                        <input type="number" id="fValor" placeholder="R$" step="0.01" style="flex:1">
-                        <button class="btn-primary" onclick="adicionarTransacao()">Lançar</button>
-                    </div>
-                    <table class="table table-hover"><thead><tr><th>Descrição</th><th>Tipo</th><th>Valor</th><th></th></tr></thead><tbody>
-            `;
-            dados.transacoes.slice().reverse().forEach(t => {
-                html += `<tr><td>${t.desc}</td><td>${t.tipo === 'entrada' ? 'Entrada' : 'Saída'}</td><td style="color:${t.tipo === 'entrada' ? 'var(--success)' : 'var(--danger)'}">${moeda(t.valor)}</td><td><button class="btn btn-sm btn-outline-danger" onclick="excluirTransacao(${t.id})"><i class="fas fa-trash"></i></button></td></tr>`;
-            });
-            html += `</tbody></table></div>`;
-            document.getElementById('conteudoApp').innerHTML = html;
-        }
-
-        window.adicionarTransacao = function() {
-            const tipo = document.getElementById('fTipo').value, desc = document.getElementById('fDesc').value, valor = parseFloat(document.getElementById('fValor').value);
-            if(!desc || isNaN(valor)) return alert("Preencha todos os campos");
-            dados.transacoes.push({ id: Date.now(), tipo, desc, valor });
-            salvarDados(); renderFinanceiro();
-        };
-        window.excluirTransacao = function(id) {
-            if(!confirm("Excluir?")) return;
-            dados.transacoes = dados.transacoes.filter(t => t.id !== id);
-            salvarDados(); renderFinanceiro();
-        };
-
-        // ================== 4. VENDAS ==================
+        // ================== 3. VENDAS ==================
         function renderVendas() {
             let html = `
                 <div class="table-card">
@@ -205,17 +172,21 @@
                     <div class="input-group-custom">
                         <select id="vProduto" style="flex:2">
                             <option value="">-- Escolha --</option>
-                            ${dados.produtos.filter(p => p.qtd > 0).map(p => `<option value="${p.id}">${p.nome} (${p.qtd} un)</option>`).join('')}
+                            ${dados.produtos.filter(p => p.qtd > 0).map(p => `<option value="${p.id}">${p.nome} (Custo: ${moeda(p.custo)})</option>`).join('')}
                         </select>
                         <input type="number" id="vQtd" placeholder="Qtd" value="1" min="1" style="flex:1">
+                        <input type="number" id="vPrecoVenda" placeholder="Preço Venda (R$)" step="0.01" style="flex:1">
                         <button class="btn-primary" onclick="adicionarAoCarrinho()"><i class="fas fa-cart-plus"></i> Adicionar</button>
                     </div>
                 </div>
                 <div class="table-card">
                     <h5>2. Itens do Carrinho</h5>
                     <div id="carrinhoItens" class="mb-3"></div>
-                    <div style="font-size: 20px; font-weight: 700; text-align: right; margin-bottom: 10px;">Total: <span id="totalCarrinho">R$ 0,00</span></div>
-                    <button class="btn btn-success w-100" onclick="finalizarVenda()"><i class="fas fa-check"></i> Finalizar Venda e Baixar Estoque</button>
+                    <div style="font-size: 20px; font-weight: 700; text-align: right; margin-bottom: 10px;">
+                        Total Venda: <span id="totalCarrinho">R$ 0,00</span><br>
+                        <small class="text-muted">Custo Total: <span id="custoTotalCarrinho">R$ 0,00</span></small>
+                    </div>
+                    <button class="btn btn-success w-100" onclick="finalizarVenda()"><i class="fas fa-check"></i> Finalizar Venda</button>
                 </div>
             `;
             document.getElementById('conteudoApp').innerHTML = html;
@@ -224,40 +195,105 @@
         }
 
         window.adicionarAoCarrinho = function() {
-            const id = parseInt(document.getElementById('vProduto').value), qtd = parseInt(document.getElementById('vQtd').value);
-            if(!id || isNaN(qtd) || qtd < 1) return alert("Selecione um produto");
+            const id = parseInt(document.getElementById('vProduto').value), qtd = parseInt(document.getElementById('vQtd').value), precoVenda = parseFloat(document.getElementById('vPrecoVenda').value);
+            if(!id || isNaN(qtd) || isNaN(precoVenda)) return alert("Selecione um produto e defina o preço de venda.");
             const prod = dados.produtos.find(p => p.id === id);
             if(qtd > prod.qtd) return alert("Estoque insuficiente!");
             const existe = window.carrinho.find(i => i.id === id);
-            if(existe) existe.qtd += qtd; else window.carrinho.push({ id: prod.id, nome: prod.nome, preco: prod.preco, qtd });
+            if(existe) existe.qtd += qtd; else window.carrinho.push({ id: prod.id, nome: prod.nome, custo: prod.custo, qtd, precoVenda });
             renderizarCarrinho();
         };
 
         function renderizarCarrinho() {
             const container = document.getElementById('carrinhoItens');
-            if(!window.carrinho.length) { container.innerHTML = '<p class="text-muted">Carrinho vazio</p>'; document.getElementById('totalCarrinho').innerText = 'R$ 0,00'; return; }
-            let total = 0, html = '';
+            if(!window.carrinho.length) { container.innerHTML = '<p class="text-muted">Carrinho vazio</p>'; document.getElementById('totalCarrinho').innerText = 'R$ 0,00'; document.getElementById('custoTotalCarrinho').innerText = 'R$ 0,00'; return; }
+            let total = 0, totalCusto = 0, html = '';
             window.carrinho.forEach((item, i) => {
-                total += item.preco * item.qtd;
-                html += `<div class="d-flex justify-content-between border-bottom py-2"><div>${item.nome} x ${item.qtd}</div><div>${moeda(item.preco * item.qtd)} <button class="btn btn-sm btn-outline-danger" onclick="removerCarrinho(${i})">x</button></div></div>`;
+                total += item.precoVenda * item.qtd;
+                totalCusto += item.custo * item.qtd;
+                html += `<div class="d-flex justify-content-between border-bottom py-2"><div>${item.nome} x ${item.qtd} (Custo: ${moeda(item.custo)} / Venda: ${moeda(item.precoVenda)})</div><div>${moeda(item.precoVenda * item.qtd)} <button class="btn btn-sm btn-outline-danger" onclick="removerCarrinho(${i})">x</button></div></div>`;
             });
             container.innerHTML = html;
             document.getElementById('totalCarrinho').innerText = moeda(total);
+            document.getElementById('custoTotalCarrinho').innerText = moeda(totalCusto);
         }
         window.removerCarrinho = function(i) { window.carrinho.splice(i, 1); renderizarCarrinho(); };
 
         window.finalizarVenda = function() {
             if(!window.carrinho.length) return alert("Carrinho vazio!");
-            const total = window.carrinho.reduce((acc, i) => acc + (i.preco * i.qtd), 0);
+            const total = window.carrinho.reduce((acc, i) => acc + (i.precoVenda * i.qtd), 0);
+            const custoTotal = window.carrinho.reduce((acc, i) => acc + (i.custo * i.qtd), 0);
+            
             window.carrinho.forEach(item => {
                 const prod = dados.produtos.find(p => p.id === item.id);
                 if(prod) prod.qtd -= item.qtd;
             });
-            dados.vendas.push({ id: Date.now(), itens: window.carrinho, total });
+            
+            dados.vendas.push({ id: Date.now(), itens: window.carrinho, total, custoTotal });
             salvarDados();
-            alert("Venda finalizada com sucesso!");
+            alert(`Venda finalizada!\nTotal: ${moeda(total)}\nCusto: ${moeda(custoTotal)}\nLucro: ${moeda(total - custoTotal)}`);
             renderVendas();
         };
+
+        // ================== 4. DESPESAS ==================
+        function renderFinanceiro() {
+            let html = `
+                <div class="table-card">
+                    <h5>Lançar Despesa Operacional (Tecidos, Etiquetas, Costura, etc.)</h5>
+                    <div class="input-group-custom">
+                        <input type="text" id="fDesc" placeholder="Descrição (Ex: Compra de Tecido)" style="flex:2">
+                        <input type="number" id="fValor" placeholder="Valor (R$)" step="0.01" style="flex:1">
+                        <button class="btn-primary" onclick="adicionarDespesa()">Lançar Despesa</button>
+                    </div>
+                    <table class="table table-hover mt-3"><thead><tr><th>Descrição</th><th>Valor</th><th></th></tr></thead><tbody>
+            `;
+            dados.despesas.slice().reverse().forEach(d => {
+                html += `<tr><td>${d.desc}</td><td style="color:var(--danger)">${moeda(d.valor)}</td><td><button class="btn btn-sm btn-outline-danger" onclick="excluirDespesa(${d.id})"><i class="fas fa-trash"></i></button></td></tr>`;
+            });
+            html += `</tbody></table></div>`;
+            document.getElementById('conteudoApp').innerHTML = html;
+        }
+
+        window.adicionarDespesa = function() {
+            const desc = document.getElementById('fDesc').value, valor = parseFloat(document.getElementById('fValor').value);
+            if(!desc || isNaN(valor)) return alert("Preencha todos os campos");
+            dados.despesas.push({ id: Date.now(), desc, valor });
+            salvarDados(); renderFinanceiro();
+        };
+        window.excluirDespesa = function(id) {
+            if(!confirm("Excluir despesa?")) return;
+            dados.despesas = dados.despesas.filter(d => d.id !== id);
+            salvarDados(); renderFinanceiro();
+        };
+
+        // ================== 5. FECHAMENTO MENSAL (Dia 1º) ==================
+        function executarFechamentoMensal() {
+            const hoje = new Date();
+            // Se hoje for dia 1, executa o fechamento
+            if(hoje.getDate() === 1) {
+                const totalVendas = dados.vendas.reduce((acc, v) => acc + v.total, 0);
+                const totalCusto = dados.vendas.reduce((acc, v) => acc + v.custoTotal, 0);
+                const totalDespesas = dados.despesas.reduce((acc, d) => acc + d.valor, 0);
+                const lucroFinal = (totalVendas - totalCusto) - totalDespesas;
+
+                if(totalVendas > 0 || totalDespesas > 0) {
+                    // Salva o relatório do mês anterior
+                    if(!dados.historicoMensal) dados.historicoMensal = [];
+                    dados.historicoMensal.push({
+                        mes: `${hoje.getMonth()}/${hoje.getFullYear()}`,
+                        vendas: totalVendas,
+                        custos: totalCusto,
+                        despesas: totalDespesas,
+                        lucro: lucroFinal
+                    });
+                    // Limpa o mês atual
+                    dados.vendas = [];
+                    dados.despesas = [];
+                    salvarDados();
+                    console.log("Fechamento mensal realizado com sucesso!");
+                }
+            }
+        }
 
         // ================== DARK MODE ==================
         const themeToggle = document.getElementById('themeToggle');
@@ -272,6 +308,8 @@
         });
 
         // ================== INICIALIZAR ==================
+        // Verifica se é dia 1 para fazer o fechamento
+        executarFechamentoMensal();
         renderDashboard();
     </script>
 </body>
