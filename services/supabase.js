@@ -1,7 +1,7 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/+esm';
 
 // Substitua pelos seus valores reais do Supabase
-const supabaseUrl = 'https://seu-projeto.supabase.co';
+const supabaseUrl = 'https://zkeitplyvdffmxzqwfm.supabase.co';
 const supabaseKey = 'sua-chave-anonima';
 
 export const supabase = createClient(supabaseUrl, supabaseKey);
