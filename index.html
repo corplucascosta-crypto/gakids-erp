@@ -18,7 +18,12 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: var(--gray-50); color: var(--gray-900); transition: 0.3s; }
         
-        .sidebar { position: fixed; left: 0; top: 0; width: 240px; height: 100vh; background: var(--white); border-right: 1px solid var(--gray-200); display: flex; flex-direction: column; z-index: 1000; }
+        .sidebar { 
+            position: fixed; left: 0; top: 0; width: 240px; height: 100vh; 
+            background: var(--white); border-right: 1px solid var(--gray-200); 
+            display: flex; flex-direction: column; z-index: 1000; 
+            transition: transform 0.3s ease;
+        }
         .sidebar .brand { padding: 24px 20px; border-bottom: 1px solid var(--gray-200); display: flex; align-items: center; gap: 12px; }
         .sidebar .brand .logo { width: 38px; height: 38px; border-radius: 10px; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; }
         .sidebar .brand .name { font-weight: 600; font-size: 18px; }
@@ -29,7 +34,11 @@
         .sidebar .nav .nav-item.sair { margin-top: auto; border-top: 1px solid var(--gray-200); padding-top: 16px; color: var(--danger); }
         
         .main-content { margin-left: 240px; padding: 24px; min-height: 100vh; }
-        .header { display: flex; align-items: center; justify-content: space-between; background: var(--white); padding: 16px 24px; border-radius: 12px; border: 1px solid var(--gray-200); margin-bottom: 24px; }
+        .header { 
+            display: flex; align-items: center; justify-content: space-between; 
+            background: var(--white); padding: 16px 24px; border-radius: 12px; 
+            border: 1px solid var(--gray-200); margin-bottom: 24px; 
+        }
         .header .left { display: flex; align-items: center; gap: 16px; }
         .header .left h1 { font-size: 20px; font-weight: 600; margin: 0; }
         .theme-toggle { background: none; border: none; font-size: 20px; color: var(--gray-500); cursor: pointer; }
@@ -49,10 +58,32 @@
         .badge-ok { background: #D1FAE5; color: #065F46; }
         .badge-baixo { background: #FEF3C7; color: #92400E; }
         .badge-zero { background: #FEE2E2; color: #991B1B; }
-        @media (max-width: 768px) { .sidebar { transform: translateX(-100%); width: 280px; } .sidebar.open { transform: translateX(0); } .main-content { margin-left: 0; padding: 16px; } .dashboard-grid { grid-template-columns: 1fr 1fr; } }
+
+        /* ========== MENU HAMBÚRGUER E RESPONSIVIDADE ========== */
+        .hamburger-btn {
+            display: none; background: none; border: none; font-size: 24px; color: var(--gray-500); cursor: pointer; padding: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .hamburger-btn { display: block; }
+            .sidebar { transform: translateX(-100%); width: 280px; box-shadow: 0 0 15px rgba(0,0,0,0.1); }
+            .sidebar.open { transform: translateX(0); }
+            .main-content { margin-left: 0; padding: 16px; }
+            .dashboard-grid { grid-template-columns: 1fr 1fr; }
+            .header .left h1 { font-size: 18px; }
+        }
+        /* Overlay para fechar o menu ao clicar fora */
+        .sidebar-overlay {
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5); z-index: 999; cursor: pointer;
+        }
+        .sidebar-overlay.active { display: block; }
     </style>
 </head>
 <body>
+    <!-- Overlay para celular -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="fecharMenuMobile()"></div>
+
     <div id="sidebar" class="sidebar">
         <div class="brand"><div class="logo">G&A</div><span class="name">G&A Kids</span></div>
         <nav class="nav">
@@ -62,42 +93,42 @@
             <span class="nav-item" onclick="trocarAba('financeiro', this)"><i class="fas fa-coins icon"></i><span>Despesas (Matéria-Prima)</span></span>
         </nav>
     </div>
+
     <div class="main-content">
         <header class="header">
-            <div class="left"><h1 id="tituloPagina">Dashboard</h1></div>
+            <div class="left">
+                <button class="hamburger-btn" onclick="abrirMenuMobile()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1 id="tituloPagina">Dashboard</h1>
+            </div>
             <div class="right"><button class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i></button></div>
         </header>
         <div id="conteudoApp"></div>
     </div>
 
     <script>
-        // ================== SUAS CHAVES DO JSONBIN (JÁ INSERIDAS) ==================
+        // ================== SUAS CHAVES DO JSONBIN ==================
         const BIN_ID = '6a71012df5f4af5e29e6d9a6';
         const MASTER_KEY = '$2a$10$mLw92VRK3D9RQ2QyqihvR.JPGbitvXJYiLIVYCZ7gNAhy7fUzmqgm';
-        // ============================================================================
+        // ===========================================================
 
         // ================== BANCO DE DADOS LOCAL E NA NUVEM ==================
         let dados = JSON.parse(localStorage.getItem('gakids_data')) || {
             produtos: [], vendas: [], despesas: [], historicoMensal: []
         };
 
-        // Função para salvar no LocalStorage e na Nuvem
         async function salvarDados() {
             localStorage.setItem('gakids_data', JSON.stringify(dados));
-            
             try {
                 await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json', 'X-Master-Key': MASTER_KEY },
                     body: JSON.stringify(dados)
                 });
-                console.log("💾 Dados salvos na nuvem com sucesso!");
-            } catch (e) {
-                console.log("⚠️ Sem internet: dados salvos apenas localmente.");
-            }
+            } catch (e) { console.log("Modo offline"); }
         }
 
-        // Função para carregar os dados da Nuvem (Online)
         async function carregarDadosOnline() {
             try {
                 const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
@@ -107,16 +138,26 @@
                 if(json.record) {
                     dados = json.record;
                     localStorage.setItem('gakids_data', JSON.stringify(dados));
-                    console.log("✅ Dados carregados da nuvem!");
                 }
-            } catch (e) {
-                console.log("📦 Modo Offline ativado (usando dados do computador).");
-            }
+            } catch (e) { console.log("Modo offline ativado."); }
         }
 
         const moeda = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
         const numero = (v) => new Intl.NumberFormat('pt-BR').format(v);
 
+        // ================== CONTROLE DO MENU MOBILE ==================
+        function abrirMenuMobile() {
+            document.getElementById('sidebar').classList.add('open');
+            document.getElementById('sidebarOverlay').classList.add('active');
+        }
+        function fecharMenuMobile() {
+            document.getElementById('sidebar').classList.remove('open');
+            document.getElementById('sidebarOverlay').classList.remove('active');
+        }
+        window.abrirMenuMobile = abrirMenuMobile;
+        window.fecharMenuMobile = fecharMenuMobile;
+
+        // ================== SISTEMA DE ABAS ==================
         function trocarAba(aba, element) {
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
             element.classList.add('active');
@@ -126,6 +167,8 @@
             if(aba === 'estoque') renderEstoque();
             if(aba === 'vendas') renderVendas();
             if(aba === 'financeiro') renderFinanceiro();
+            // Fechar o menu no mobile após clicar
+            if(window.innerWidth <= 768) fecharMenuMobile();
         }
         window.trocarAba = trocarAba;
 
@@ -188,14 +231,12 @@
             const n = document.getElementById('eNome').value, c = parseFloat(document.getElementById('eCusto').value), q = parseInt(document.getElementById('eQtd').value);
             if(!n || isNaN(c) || isNaN(q)) return alert("Preencha todos os campos");
             dados.produtos.push({ id: Date.now(), nome: n, custo: c, qtd: q });
-            await salvarDados(); 
-            renderEstoque();
+            await salvarDados(); renderEstoque();
         };
         window.excluirProduto = async function(id) {
             if(!confirm("Excluir?")) return;
             dados.produtos = dados.produtos.filter(p => p.id !== id);
-            await salvarDados(); 
-            renderEstoque();
+            await salvarDados(); renderEstoque();
         };
 
         // ================== 3. VENDAS ==================
@@ -294,14 +335,12 @@
             const desc = document.getElementById('fDesc').value, valor = parseFloat(document.getElementById('fValor').value);
             if(!desc || isNaN(valor)) return alert("Preencha todos os campos");
             dados.despesas.push({ id: Date.now(), desc, valor });
-            await salvarDados(); 
-            renderFinanceiro();
+            await salvarDados(); renderFinanceiro();
         };
         window.excluirDespesa = async function(id) {
             if(!confirm("Excluir despesa?")) return;
             dados.despesas = dados.despesas.filter(d => d.id !== id);
-            await salvarDados(); 
-            renderFinanceiro();
+            await salvarDados(); renderFinanceiro();
         };
 
         // ================== 5. FECHAMENTO MENSAL ==================
@@ -329,7 +368,7 @@
                     dados.vendas = [];
                     dados.despesas = [];
                     await salvarDados();
-                    console.log("📅 Fechamento mensal realizado!");
+                    console.log("Fechamento mensal realizado!");
                 }
             }
         }
