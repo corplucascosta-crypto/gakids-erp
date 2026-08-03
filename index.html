@@ -71,11 +71,10 @@
     </div>
 
     <script>
-        // ================== CONFIGURAÇÃO DA NUVEM ==================
-        // COLE AQUI O SEU BIN ID E SUA MASTER KEY DO JSONBIN.IO
+        // ================== SUAS CHAVES DO JSONBIN (JÁ INSERIDAS) ==================
         const BIN_ID = '6a71012df5f4af5e29e6d9a6';
         const MASTER_KEY = '$2a$10$mLw92VRK3D9RQ2QyqihvR.JPGbitvXJYiLIVYCZ7gNAhy7fUzmqgm';
-        // ============================================================
+        // ============================================================================
 
         // ================== BANCO DE DADOS LOCAL E NA NUVEM ==================
         let dados = JSON.parse(localStorage.getItem('gakids_data')) || {
@@ -86,22 +85,20 @@
         async function salvarDados() {
             localStorage.setItem('gakids_data', JSON.stringify(dados));
             
-            if(BIN_ID !== 'COLE_AQUI_SEU_BIN_ID' && MASTER_KEY !== 'COLE_AQUI_SUA_MASTER_KEY') {
-                try {
-                    await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json', 'X-Master-Key': MASTER_KEY },
-                        body: JSON.stringify(dados)
-                    });
-                } catch (e) {
-                    console.log("Sem internet: dados salvos localmente.");
-                }
+            try {
+                await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'X-Master-Key': MASTER_KEY },
+                    body: JSON.stringify(dados)
+                });
+                console.log("💾 Dados salvos na nuvem com sucesso!");
+            } catch (e) {
+                console.log("⚠️ Sem internet: dados salvos apenas localmente.");
             }
         }
 
         // Função para carregar os dados da Nuvem (Online)
         async function carregarDadosOnline() {
-            if(BIN_ID === 'COLE_AQUI_SEU_BIN_ID') return;
             try {
                 const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
                     headers: { 'X-Master-Key': MASTER_KEY }
@@ -110,9 +107,10 @@
                 if(json.record) {
                     dados = json.record;
                     localStorage.setItem('gakids_data', JSON.stringify(dados));
+                    console.log("✅ Dados carregados da nuvem!");
                 }
             } catch (e) {
-                console.log("Modo Offline ativado.");
+                console.log("📦 Modo Offline ativado (usando dados do computador).");
             }
         }
 
@@ -190,12 +188,14 @@
             const n = document.getElementById('eNome').value, c = parseFloat(document.getElementById('eCusto').value), q = parseInt(document.getElementById('eQtd').value);
             if(!n || isNaN(c) || isNaN(q)) return alert("Preencha todos os campos");
             dados.produtos.push({ id: Date.now(), nome: n, custo: c, qtd: q });
-            await salvarDados(); renderEstoque();
+            await salvarDados(); 
+            renderEstoque();
         };
         window.excluirProduto = async function(id) {
             if(!confirm("Excluir?")) return;
             dados.produtos = dados.produtos.filter(p => p.id !== id);
-            await salvarDados(); renderEstoque();
+            await salvarDados(); 
+            renderEstoque();
         };
 
         // ================== 3. VENDAS ==================
@@ -294,12 +294,14 @@
             const desc = document.getElementById('fDesc').value, valor = parseFloat(document.getElementById('fValor').value);
             if(!desc || isNaN(valor)) return alert("Preencha todos os campos");
             dados.despesas.push({ id: Date.now(), desc, valor });
-            await salvarDados(); renderFinanceiro();
+            await salvarDados(); 
+            renderFinanceiro();
         };
         window.excluirDespesa = async function(id) {
             if(!confirm("Excluir despesa?")) return;
             dados.despesas = dados.despesas.filter(d => d.id !== id);
-            await salvarDados(); renderFinanceiro();
+            await salvarDados(); 
+            renderFinanceiro();
         };
 
         // ================== 5. FECHAMENTO MENSAL ==================
@@ -327,7 +329,7 @@
                     dados.vendas = [];
                     dados.despesas = [];
                     await salvarDados();
-                    console.log("Fechamento mensal realizado!");
+                    console.log("📅 Fechamento mensal realizado!");
                 }
             }
         }
