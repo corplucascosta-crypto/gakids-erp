@@ -43,8 +43,6 @@
         .btn-primary:hover { background: #5B21B6; color: white; }
         .btn-success { background: var(--success); color: white; border: none; padding: 8px 16px; border-radius: 8px; transition: 0.2s; }
         .btn-success:hover { background: #059669; color: white; }
-        .btn-fechar { background: var(--danger); color: white; border: none; padding: 8px 16px; border-radius: 8px; transition: 0.2s; width: 100%; margin-top: 10px; }
-        .btn-fechar:hover { background: #b91c1c; color: white; }
         .input-group-custom { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px; }
         .input-group-custom input, .input-group-custom select, .input-group-custom textarea { padding: 8px 12px; border: 1px solid var(--gray-200); border-radius: 8px; flex: 1; min-width: 120px; }
         .estado-badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
@@ -73,20 +71,54 @@
     </div>
 
     <script>
-        // ================== BANCO DE DADOS ==================
+        // ================== CONFIGURAÇÃO DA NUVEM ==================
+        // COLE AQUI O SEU BIN ID E SUA MASTER KEY DO JSONBIN.IO
+        const BIN_ID = '6a71012df5f4af5e29e6d9a6';
+        const MASTER_KEY = '$2a$10$mLw92VRK3D9RQ2QyqihvR.JPGbitvXJYiLIVYCZ7gNAhy7fUzmqgm';
+        // ============================================================
+
+        // ================== BANCO DE DADOS LOCAL E NA NUVEM ==================
         let dados = JSON.parse(localStorage.getItem('gakids_data')) || {
-            produtos: [], // Matéria-prima / Produtos
-            vendas: [],   // Vendas realizadas
-            despesas: [], // Despesas manuais (tecidos, etiquetas, etc)
-            historicoMensal: [] // Histórico de fechamentos
+            produtos: [], vendas: [], despesas: [], historicoMensal: []
         };
 
-        function salvarDados() { localStorage.setItem('gakids_data', JSON.stringify(dados)); }
+        // Função para salvar no LocalStorage e na Nuvem
+        async function salvarDados() {
+            localStorage.setItem('gakids_data', JSON.stringify(dados));
+            
+            if(BIN_ID !== 'COLE_AQUI_SEU_BIN_ID' && MASTER_KEY !== 'COLE_AQUI_SUA_MASTER_KEY') {
+                try {
+                    await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json', 'X-Master-Key': MASTER_KEY },
+                        body: JSON.stringify(dados)
+                    });
+                } catch (e) {
+                    console.log("Sem internet: dados salvos localmente.");
+                }
+            }
+        }
+
+        // Função para carregar os dados da Nuvem (Online)
+        async function carregarDadosOnline() {
+            if(BIN_ID === 'COLE_AQUI_SEU_BIN_ID') return;
+            try {
+                const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+                    headers: { 'X-Master-Key': MASTER_KEY }
+                });
+                const json = await res.json();
+                if(json.record) {
+                    dados = json.record;
+                    localStorage.setItem('gakids_data', JSON.stringify(dados));
+                }
+            } catch (e) {
+                console.log("Modo Offline ativado.");
+            }
+        }
 
         const moeda = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
         const numero = (v) => new Intl.NumberFormat('pt-BR').format(v);
 
-        // ================== SISTEMA DE ABAS ==================
         function trocarAba(aba, element) {
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
             element.classList.add('active');
@@ -154,16 +186,16 @@
             document.getElementById('conteudoApp').innerHTML = html;
         }
 
-        window.adicionarProduto = function() {
+        window.adicionarProduto = async function() {
             const n = document.getElementById('eNome').value, c = parseFloat(document.getElementById('eCusto').value), q = parseInt(document.getElementById('eQtd').value);
             if(!n || isNaN(c) || isNaN(q)) return alert("Preencha todos os campos");
             dados.produtos.push({ id: Date.now(), nome: n, custo: c, qtd: q });
-            salvarDados(); renderEstoque();
+            await salvarDados(); renderEstoque();
         };
-        window.excluirProduto = function(id) {
+        window.excluirProduto = async function(id) {
             if(!confirm("Excluir?")) return;
             dados.produtos = dados.produtos.filter(p => p.id !== id);
-            salvarDados(); renderEstoque();
+            await salvarDados(); renderEstoque();
         };
 
         // ================== 3. VENDAS ==================
@@ -221,7 +253,7 @@
         }
         window.removerCarrinho = function(i) { window.carrinho.splice(i, 1); renderizarCarrinho(); };
 
-        window.finalizarVenda = function() {
+        window.finalizarVenda = async function() {
             if(!window.carrinho.length) return alert("Carrinho vazio!");
             const total = window.carrinho.reduce((acc, i) => acc + (i.precoVenda * i.qtd), 0);
             const custoTotal = window.carrinho.reduce((acc, i) => acc + (i.custo * i.qtd), 0);
@@ -232,7 +264,7 @@
             });
             
             dados.vendas.push({ id: Date.now(), itens: window.carrinho, total, custoTotal });
-            salvarDados();
+            await salvarDados();
             alert(`Venda finalizada!\nTotal: ${moeda(total)}\nCusto: ${moeda(custoTotal)}\nLucro: ${moeda(total - custoTotal)}`);
             renderVendas();
         };
@@ -258,20 +290,20 @@
             document.getElementById('conteudoApp').innerHTML = html;
         }
 
-        window.adicionarDespesa = function() {
+        window.adicionarDespesa = async function() {
             const desc = document.getElementById('fDesc').value, valor = parseFloat(document.getElementById('fValor').value);
             if(!desc || isNaN(valor)) return alert("Preencha todos os campos");
             dados.despesas.push({ id: Date.now(), desc, valor });
-            salvarDados(); renderFinanceiro();
+            await salvarDados(); renderFinanceiro();
         };
-        window.excluirDespesa = function(id) {
+        window.excluirDespesa = async function(id) {
             if(!confirm("Excluir despesa?")) return;
             dados.despesas = dados.despesas.filter(d => d.id !== id);
-            salvarDados(); renderFinanceiro();
+            await salvarDados(); renderFinanceiro();
         };
 
         // ================== 5. FECHAMENTO MENSAL ==================
-        function executarFechamentoMensal() {
+        async function executarFechamentoMensal() {
             const hoje = new Date();
             if(hoje.getDate() === 1) {
                 if(!dados.vendas) dados.vendas = [];
@@ -294,7 +326,7 @@
                     });
                     dados.vendas = [];
                     dados.despesas = [];
-                    salvarDados();
+                    await salvarDados();
                     console.log("Fechamento mensal realizado!");
                 }
             }
@@ -313,13 +345,15 @@
         });
 
         // ================== INICIALIZAR ==================
-        if(!dados.vendas) dados.vendas = [];
-        if(!dados.despesas) dados.despesas = [];
-        if(!dados.historicoMensal) dados.historicoMensal = [];
-        salvarDados();
-
-        executarFechamentoMensal();
-        renderDashboard();
+        (async function init() {
+            await carregarDadosOnline();
+            if(!dados.vendas) dados.vendas = [];
+            if(!dados.despesas) dados.despesas = [];
+            if(!dados.historicoMensal) dados.historicoMensal = [];
+            await salvarDados();
+            await executarFechamentoMensal();
+            renderDashboard();
+        })();
     </script>
 </body>
 </html>
