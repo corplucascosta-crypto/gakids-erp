@@ -1,3 +1,4 @@
+cat > index.html << 'EOF'
 <!DOCTYPE html>
 <html lang="pt-BR" data-theme="light">
 <head>
@@ -33,28 +34,10 @@
         .sidebar .nav .nav-item.active { background: var(--primary-light); color: var(--primary); }
         .sidebar .nav .nav-item.sair { margin-top: auto; border-top: 1px solid var(--gray-200); padding-top: 16px; color: var(--danger); }
         
-        /* ===== LAYOUT CENTRALIZADO (MAX-WIDTH) ===== */
-        .main-content { 
-            margin-left: 240px; 
-            padding: 24px; 
-            min-height: 100vh; 
-            display: flex;
-            flex-direction: column;
-            align-items: center; /* Centraliza o conteúdo na tela */
-        }
-        
-        .app-container {
-            width: 100%;
-            max-width: 1300px; /* Largura máxima das telas */
-            margin: 0 auto;    /* Centraliza horizontalmente */
-        }
+        .main-content { margin-left: 240px; padding: 24px; min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
+        .app-container { width: 100%; max-width: 1300px; margin: 0 auto; }
 
-        .header { 
-            display: flex; align-items: center; justify-content: space-between; 
-            background: var(--white); padding: 16px 24px; border-radius: 12px; 
-            border: 1px solid var(--gray-200); margin-bottom: 24px; 
-            width: 100%;
-        }
+        .header { display: flex; align-items: center; justify-content: space-between; background: var(--white); padding: 16px 24px; border-radius: 12px; border: 1px solid var(--gray-200); margin-bottom: 24px; width: 100%; }
         .header .left { display: flex; align-items: center; gap: 16px; }
         .header .left h1 { font-size: 20px; font-weight: 600; margin: 0; }
         .theme-toggle { background: none; border: none; font-size: 20px; color: var(--gray-500); cursor: pointer; }
@@ -68,6 +51,8 @@
         .btn-primary:hover { background: #5B21B6; color: white; }
         .btn-success { background: var(--success); color: white; border: none; padding: 8px 16px; border-radius: 8px; transition: 0.2s; }
         .btn-success:hover { background: #059669; color: white; }
+        .btn-export { background: #3B82F6; color: white; border: none; padding: 8px 16px; border-radius: 8px; transition: 0.2s; margin-bottom: 15px; }
+        .btn-export:hover { background: #2563EB; color: white; }
         .input-group-custom { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px; }
         .input-group-custom input, .input-group-custom select, .input-group-custom textarea { padding: 8px 12px; border: 1px solid var(--gray-200); border-radius: 8px; flex: 1; min-width: 120px; }
         .estado-badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
@@ -75,10 +60,7 @@
         .badge-baixo { background: #FEF3C7; color: #92400E; }
         .badge-zero { background: #FEE2E2; color: #991B1B; }
 
-        /* ========== MENU HAMBÚRGUER E RESPONSIVIDADE ========== */
-        .hamburger-btn {
-            display: none; background: none; border: none; font-size: 24px; color: var(--gray-500); cursor: pointer; padding: 5px;
-        }
+        .hamburger-btn { display: none; background: none; border: none; font-size: 24px; color: var(--gray-500); cursor: pointer; padding: 5px; }
         
         @media (max-width: 768px) {
             .hamburger-btn { display: block; }
@@ -88,16 +70,11 @@
             .dashboard-grid { grid-template-columns: 1fr 1fr; }
             .header .left h1 { font-size: 18px; }
         }
-        /* Overlay para fechar o menu ao clicar fora */
-        .sidebar-overlay {
-            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.5); z-index: 999; cursor: pointer;
-        }
+        .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 999; cursor: pointer; }
         .sidebar-overlay.active { display: block; }
     </style>
 </head>
 <body>
-    <!-- Overlay para celular -->
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="fecharMenuMobile()"></div>
 
     <div id="sidebar" class="sidebar">
@@ -107,6 +84,7 @@
             <span class="nav-item" onclick="trocarAba('estoque', this)"><i class="fas fa-boxes icon"></i><span>Estoque</span></span>
             <span class="nav-item" onclick="trocarAba('vendas', this)"><i class="fas fa-shopping-cart icon"></i><span>Vendas</span></span>
             <span class="nav-item" onclick="trocarAba('financeiro', this)"><i class="fas fa-coins icon"></i><span>Despesas (Matéria-Prima)</span></span>
+            <span class="nav-item" onclick="trocarAba('historico', this)"><i class="fas fa-history icon"></i><span>Histórico</span></span>
         </nav>
     </div>
 
@@ -114,9 +92,7 @@
         <div class="app-container">
             <header class="header">
                 <div class="left">
-                    <button class="hamburger-btn" onclick="abrirMenuMobile()">
-                        <i class="fas fa-bars"></i>
-                    </button>
+                    <button class="hamburger-btn" onclick="abrirMenuMobile()"><i class="fas fa-bars"></i></button>
                     <h1 id="tituloPagina">Dashboard</h1>
                 </div>
                 <div class="right"><button class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i></button></div>
@@ -179,12 +155,17 @@
         function trocarAba(aba, element) {
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
             element.classList.add('active');
-            const titulos = { dashboard: 'Dashboard', estoque: 'Gestão de Estoque', vendas: 'Nova Venda', financeiro: 'Despesas (Matéria-Prima)' };
+            const titulos = { 
+                dashboard: 'Dashboard', estoque: 'Gestão de Estoque', 
+                vendas: 'Nova Venda', financeiro: 'Despesas (Matéria-Prima)',
+                historico: 'Histórico e Exportação'
+            };
             document.getElementById('tituloPagina').innerText = titulos[aba];
             if(aba === 'dashboard') renderDashboard();
             if(aba === 'estoque') renderEstoque();
             if(aba === 'vendas') renderVendas();
             if(aba === 'financeiro') renderFinanceiro();
+            if(aba === 'historico') renderHistorico();
             if(window.innerWidth <= 768) fecharMenuMobile();
         }
         window.trocarAba = trocarAba;
@@ -327,7 +308,7 @@
             renderVendas();
         };
 
-        // ================== 4. DESPESAS (MATÉRIA-PRIMA) ==================
+        // ================== 4. DESPESAS ==================
         function renderFinanceiro() {
             let html = `
                 <div class="table-card">
@@ -360,35 +341,78 @@
             await salvarDados(); renderFinanceiro();
         };
 
-        // ================== 5. FECHAMENTO MENSAL ==================
-        async function executarFechamentoMensal() {
-            const hoje = new Date();
-            if(hoje.getDate() === 1) {
-                if(!dados.vendas) dados.vendas = [];
-                if(!dados.despesas) dados.despesas = [];
+        // ================== 5. HISTÓRICO E EXPORTAÇÃO ==================
+        function renderHistorico() {
+            if(!dados.historicoMensal) dados.historicoMensal = [];
+            
+            let html = `
+                <div class="table-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 20px;">
+                        <h5>📊 Fechamentos Mensais Anteriores</h5>
+                        <button class="btn-export" onclick="exportarDados()"><i class="fas fa-file-csv"></i> Exportar Dados (CSV)</button>
+                    </div>
+            `;
 
-                const totalVendas = dados.vendas.reduce((acc, v) => acc + v.total, 0);
-                const totalCusto = dados.vendas.reduce((acc, v) => acc + v.custoTotal, 0);
-                const totalDespesas = dados.despesas.reduce((acc, d) => acc + d.valor, 0);
-                const lucroFinal = (totalVendas - totalCusto) - totalDespesas;
-
-                if(totalVendas > 0 || totalDespesas > 0) {
-                    if(!dados.historicoMensal) dados.historicoMensal = [];
-                    
-                    dados.historicoMensal.push({
-                        mes: `${hoje.getMonth() + 1}/${hoje.getFullYear()}`,
-                        vendas: totalVendas,
-                        custos: totalCusto,
-                        despesas: totalDespesas,
-                        lucro: lucroFinal
-                    });
-                    dados.vendas = [];
-                    dados.despesas = [];
-                    await salvarDados();
-                    console.log("Fechamento mensal realizado!");
-                }
+            if(dados.historicoMensal.length === 0) {
+                html += `<p class="text-muted text-center">Nenhum fechamento mensal registrado ainda. Os relatórios aparecerão aqui automaticamente no dia 1 de cada mês.</p>`;
+            } else {
+                html += `
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Mês</th>
+                                    <th>Vendas (R$)</th>
+                                    <th>Custos (R$)</th>
+                                    <th>Despesas (R$)</th>
+                                    <th style="font-weight: bold;">Lucro Líquido (R$)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+                // Exibir do mais recente para o mais antigo
+                dados.historicoMensal.slice().reverse().forEach(m => {
+                    const corLucro = m.lucro >= 0 ? 'var(--success)' : 'var(--danger)';
+                    html += `
+                        <tr>
+                            <td><strong>${m.mes}</strong></td>
+                            <td>${moeda(m.vendas)}</td>
+                            <td>${moeda(m.custos)}</td>
+                            <td style="color:var(--danger)">${moeda(m.despesas)}</td>
+                            <td style="color:${corLucro}; font-weight: bold;">${moeda(m.lucro)}</td>
+                        </tr>
+                    `;
+                });
+                html += `</tbody></table></div>`;
             }
+            html += `</div>`;
+            document.getElementById('conteudoApp').innerHTML = html;
         }
+
+        // ================== 6. EXPORTAÇÃO CSV ==================
+        window.exportarDados = function() {
+            if(!dados.historicoMensal || dados.historicoMensal.length === 0) {
+                return alert("Não há dados de histórico mensal para exportar ainda.");
+            }
+
+            // Cabeçalhos
+            let csv = "Mês;Vendas (R$);Custos (R$);Despesas (R$);Lucro Líquido (R$)\n";
+            
+            // Dados
+            dados.historicoMensal.forEach(m => {
+                csv += `${m.mes};${m.vendas.toFixed(2)};${m.custos.toFixed(2)};${m.despesas.toFixed(2)};${m.lucro.toFixed(2)}\n`;
+            });
+
+            // Criar arquivo e baixar
+            const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' }); // BOM para Excel
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `Relatorio_G&A_Kids_${new Date().toISOString().slice(0,10)}.csv`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(link.href);
+        };
 
         // ================== DARK MODE ==================
         const themeToggle = document.getElementById('themeToggle');
@@ -409,9 +433,26 @@
             if(!dados.despesas) dados.despesas = [];
             if(!dados.historicoMensal) dados.historicoMensal = [];
             await salvarDados();
-            await executarFechamentoMensal();
+            // Fechamento mensal (Dia 1)
+            const hoje = new Date();
+            if(hoje.getDate() === 1) {
+                const totalVendas = dados.vendas.reduce((acc, v) => acc + v.total, 0);
+                const totalCusto = dados.vendas.reduce((acc, v) => acc + v.custoTotal, 0);
+                const totalDespesas = dados.despesas.reduce((acc, d) => acc + d.valor, 0);
+                const lucroFinal = (totalVendas - totalCusto) - totalDespesas;
+                if(totalVendas > 0 || totalDespesas > 0) {
+                    dados.historicoMensal.push({
+                        mes: `${hoje.getMonth() + 1}/${hoje.getFullYear()}`,
+                        vendas: totalVendas, custos: totalCusto, despesas: totalDespesas, lucro: lucroFinal
+                    });
+                    dados.vendas = [];
+                    dados.despesas = [];
+                    await salvarDados();
+                }
+            }
             renderDashboard();
         })();
     </script>
 </body>
 </html>
+EOF
