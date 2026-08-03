@@ -33,21 +33,37 @@
         .sidebar .nav .nav-item.active { background: var(--primary-light); color: var(--primary); }
         .sidebar .nav .nav-item.sair { margin-top: auto; border-top: 1px solid var(--gray-200); padding-top: 16px; color: var(--danger); }
         
-        .main-content { margin-left: 240px; padding: 24px; min-height: 100vh; }
+        /* ===== LAYOUT CENTRALIZADO (MAX-WIDTH) ===== */
+        .main-content { 
+            margin-left: 240px; 
+            padding: 24px; 
+            min-height: 100vh; 
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Centraliza o conteúdo na tela */
+        }
+        
+        .app-container {
+            width: 100%;
+            max-width: 1300px; /* Largura máxima das telas */
+            margin: 0 auto;    /* Centraliza horizontalmente */
+        }
+
         .header { 
             display: flex; align-items: center; justify-content: space-between; 
             background: var(--white); padding: 16px 24px; border-radius: 12px; 
             border: 1px solid var(--gray-200); margin-bottom: 24px; 
+            width: 100%;
         }
         .header .left { display: flex; align-items: center; gap: 16px; }
         .header .left h1 { font-size: 20px; font-weight: 600; margin: 0; }
         .theme-toggle { background: none; border: none; font-size: 20px; color: var(--gray-500); cursor: pointer; }
-        .dashboard-grid { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 24px; }
+        .dashboard-grid { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 24px; width: 100%; }
         .card { background: var(--white); padding: 20px; border-radius: 12px; border: 1px solid var(--gray-200); }
         .card .header { display: flex; justify-content: space-between; margin-bottom: 8px; border: none; padding: 0; }
         .card .header .label { font-size: 14px; color: var(--gray-500); }
         .card .value { font-size: 22px; font-weight: 700; }
-        .table-card { grid-column: 1 / -1; background: var(--white); padding: 20px; border-radius: 12px; border: 1px solid var(--gray-200); }
+        .table-card { grid-column: 1 / -1; background: var(--white); padding: 20px; border-radius: 12px; border: 1px solid var(--gray-200); width: 100%; }
         .btn-primary { background: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 8px; transition: 0.2s; }
         .btn-primary:hover { background: #5B21B6; color: white; }
         .btn-success { background: var(--success); color: white; border: none; padding: 8px 16px; border-radius: 8px; transition: 0.2s; }
@@ -95,16 +111,18 @@
     </div>
 
     <div class="main-content">
-        <header class="header">
-            <div class="left">
-                <button class="hamburger-btn" onclick="abrirMenuMobile()">
-                    <i class="fas fa-bars"></i>
-                </button>
-                <h1 id="tituloPagina">Dashboard</h1>
-            </div>
-            <div class="right"><button class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i></button></div>
-        </header>
-        <div id="conteudoApp"></div>
+        <div class="app-container">
+            <header class="header">
+                <div class="left">
+                    <button class="hamburger-btn" onclick="abrirMenuMobile()">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1 id="tituloPagina">Dashboard</h1>
+                </div>
+                <div class="right"><button class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i></button></div>
+            </header>
+            <div id="conteudoApp"></div>
+        </div>
     </div>
 
     <script>
@@ -167,7 +185,6 @@
             if(aba === 'estoque') renderEstoque();
             if(aba === 'vendas') renderVendas();
             if(aba === 'financeiro') renderFinanceiro();
-            // Fechar o menu no mobile após clicar
             if(window.innerWidth <= 768) fecharMenuMobile();
         }
         window.trocarAba = trocarAba;
