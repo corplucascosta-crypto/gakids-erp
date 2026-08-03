@@ -1,4 +1,3 @@
-cat > index.html << 'EOF'
 <!DOCTYPE html>
 <html lang="pt-BR" data-theme="light">
 <head>
@@ -10,15 +9,24 @@ cat > index.html << 'EOF'
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #7C3AED; --primary-light: #EDE9FE; --gray-50: #F9FAFB; --gray-200: #E5E7EB;
-            --gray-500: #6B7280; --gray-900: #111827; --white: #FFFFFF; --success: #10B981; --danger: #EF4444;
+            --primary: #8B5CF6; 
+            --primary-light: #EDE9FE; 
+            --pink-soft: #FCE7F3; 
+            --gray-50: #F8FAFC; 
+            --gray-200: #E2E8F0;
+            --gray-500: #64748B; 
+            --gray-900: #1E293B; 
+            --white: #FFFFFF; 
+            --success: #10B981; 
+            --danger: #EF4444;
         }
         [data-theme="dark"] {
-            --gray-50: #111827; --gray-200: #374151; --gray-500: #9CA3AF; --gray-900: #F9FAFB; --white: #1F2937;
+            --gray-50: #0F172A; --gray-200: #1E293B; --gray-500: #94A3B8; --gray-900: #F8FAFC; --white: #1E293B;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: var(--gray-50); color: var(--gray-900); transition: 0.3s; }
         
+        /* ===== SIDEBAR ===== */
         .sidebar { 
             position: fixed; left: 0; top: 0; width: 240px; height: 100vh; 
             background: var(--white); border-right: 1px solid var(--gray-200); 
@@ -34,6 +42,7 @@ cat > index.html << 'EOF'
         .sidebar .nav .nav-item.active { background: var(--primary-light); color: var(--primary); }
         .sidebar .nav .nav-item.sair { margin-top: auto; border-top: 1px solid var(--gray-200); padding-top: 16px; color: var(--danger); }
         
+        /* ===== LAYOUT ===== */
         .main-content { margin-left: 240px; padding: 24px; min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
         .app-container { width: 100%; max-width: 1300px; margin: 0 auto; }
 
@@ -41,27 +50,47 @@ cat > index.html << 'EOF'
         .header .left { display: flex; align-items: center; gap: 16px; }
         .header .left h1 { font-size: 20px; font-weight: 600; margin: 0; }
         .theme-toggle { background: none; border: none; font-size: 20px; color: var(--gray-500); cursor: pointer; }
+        
+        /* ===== DASHBOARD CARDS ===== */
         .dashboard-grid { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 24px; width: 100%; }
         .card { background: var(--white); padding: 20px; border-radius: 12px; border: 1px solid var(--gray-200); }
         .card .header { display: flex; justify-content: space-between; margin-bottom: 8px; border: none; padding: 0; }
         .card .header .label { font-size: 14px; color: var(--gray-500); }
         .card .value { font-size: 22px; font-weight: 700; }
-        .table-card { grid-column: 1 / -1; background: var(--white); padding: 20px; border-radius: 12px; border: 1px solid var(--gray-200); width: 100%; }
-        .btn-primary { background: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 8px; transition: 0.2s; }
-        .btn-primary:hover { background: #5B21B6; color: white; }
-        .btn-success { background: var(--success); color: white; border: none; padding: 8px 16px; border-radius: 8px; transition: 0.2s; }
-        .btn-success:hover { background: #059669; color: white; }
-        .btn-export { background: #3B82F6; color: white; border: none; padding: 8px 16px; border-radius: 8px; transition: 0.2s; margin-bottom: 15px; }
-        .btn-export:hover { background: #2563EB; color: white; }
-        .input-group-custom { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px; }
-        .input-group-custom input, .input-group-custom select, .input-group-custom textarea { padding: 8px 12px; border: 1px solid var(--gray-200); border-radius: 8px; flex: 1; min-width: 120px; }
-        .estado-badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
-        .badge-ok { background: #D1FAE5; color: #065F46; }
-        .badge-baixo { background: #FEF3C7; color: #92400E; }
-        .badge-zero { background: #FEE2E2; color: #991B1B; }
-
-        .hamburger-btn { display: none; background: none; border: none; font-size: 24px; color: var(--gray-500); cursor: pointer; padding: 5px; }
         
+        /* ===== TABELAS E FORMULÁRIOS ===== */
+        .table-card { background: var(--white); padding: 20px; border-radius: 12px; border: 1px solid var(--gray-200); width: 100%; margin-top: 20px; }
+        .table-card h5 { color: var(--gray-900); font-weight: 600; font-size: 16px; margin-bottom: 16px; }
+        
+        /* Design Clean do Formulário */
+        .form-clean { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
+        .form-clean .input-group-item { flex: 1; min-width: 120px; }
+        .form-clean label { font-size: 12px; font-weight: 600; color: var(--gray-500); display: block; margin-bottom: 4px; }
+        .form-clean input, .form-clean select { width: 100%; padding: 8px 12px; border: 1px solid var(--gray-200); border-radius: 6px; background: var(--white); color: var(--gray-900); font-size: 14px; outline: none; transition: 0.2s; }
+        .form-clean input:focus, .form-clean select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1); }
+
+        .btn-primary { background: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 500; font-size: 14px; transition: 0.2s; white-space: nowrap; }
+        .btn-primary:hover { background: #7C3AED; color: white; }
+        .btn-success { background: var(--success); color: white; border: none; padding: 8px 16px; border-radius: 6px; transition: 0.2s; }
+        .btn-success:hover { background: #059669; color: white; }
+        .btn-export { background: #3B82F6; color: white; border: none; padding: 8px 16px; border-radius: 6px; transition: 0.2s; }
+        .btn-export:hover { background: #2563EB; color: white; }
+        .btn-outline-danger { border: 1px solid var(--danger); color: var(--danger); background: transparent; padding: 4px 8px; border-radius: 6px; }
+        .btn-outline-danger:hover { background: #FEE2E2; }
+
+        .table-modern { width: 100%; border-collapse: collapse; font-size: 14px; }
+        .table-modern th { text-align: left; padding: 12px 0; border-bottom: 1px solid var(--gray-200); color: var(--gray-500); font-weight: 600; }
+        .table-modern td { padding: 12px 0; border-bottom: 1px solid var(--gray-200); color: var(--gray-900); }
+        .table-modern tr:last-child td { border-bottom: none; }
+        
+        .estado-badge { padding: 2px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+        .badge-ok { background: #DCFCE7; color: #166534; }
+        .badge-baixo { background: #FEF9C3; color: #854D0E; }
+        .badge-zero { background: #FEE2E2; color: #991B1B; }
+        .status-label { font-size: 11px; background: var(--primary-light); color: var(--primary); padding: 2px 10px; border-radius: 20px; font-weight: 600; }
+
+        /* ===== MOBILE ===== */
+        .hamburger-btn { display: none; background: none; border: none; font-size: 24px; color: var(--gray-500); cursor: pointer; padding: 5px; }
         @media (max-width: 768px) {
             .hamburger-btn { display: block; }
             .sidebar { transform: translateX(-100%); width: 280px; box-shadow: 0 0 15px rgba(0,0,0,0.1); }
@@ -69,6 +98,7 @@ cat > index.html << 'EOF'
             .main-content { margin-left: 0; padding: 16px; }
             .dashboard-grid { grid-template-columns: 1fr 1fr; }
             .header .left h1 { font-size: 18px; }
+            .form-clean .input-group-item { flex: 1 1 100%; }
         }
         .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 999; cursor: pointer; }
         .sidebar-overlay.active { display: block; }
@@ -83,7 +113,7 @@ cat > index.html << 'EOF'
             <span class="nav-item active" onclick="trocarAba('dashboard', this)"><i class="fas fa-chart-pie icon"></i><span>Dashboard</span></span>
             <span class="nav-item" onclick="trocarAba('estoque', this)"><i class="fas fa-boxes icon"></i><span>Estoque</span></span>
             <span class="nav-item" onclick="trocarAba('vendas', this)"><i class="fas fa-shopping-cart icon"></i><span>Vendas</span></span>
-            <span class="nav-item" onclick="trocarAba('financeiro', this)"><i class="fas fa-coins icon"></i><span>Despesas (Matéria-Prima)</span></span>
+            <span class="nav-item" onclick="trocarAba('financeiro', this)"><i class="fas fa-coins icon"></i><span>Despesas</span></span>
             <span class="nav-item" onclick="trocarAba('historico', this)"><i class="fas fa-history icon"></i><span>Histórico</span></span>
         </nav>
     </div>
@@ -102,12 +132,11 @@ cat > index.html << 'EOF'
     </div>
 
     <script>
-        // ================== SUAS CHAVES DO JSONBIN ==================
+        // ================== SUAS CHAVES ==================
         const BIN_ID = '6a71012df5f4af5e29e6d9a6';
         const MASTER_KEY = '$2a$10$mLw92VRK3D9RQ2QyqihvR.JPGbitvXJYiLIVYCZ7gNAhy7fUzmqgm';
-        // ===========================================================
 
-        // ================== BANCO DE DADOS LOCAL E NA NUVEM ==================
+        // ================== BANCO DE DADOS ==================
         let dados = JSON.parse(localStorage.getItem('gakids_data')) || {
             produtos: [], vendas: [], despesas: [], historicoMensal: []
         };
@@ -139,7 +168,7 @@ cat > index.html << 'EOF'
         const moeda = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
         const numero = (v) => new Intl.NumberFormat('pt-BR').format(v);
 
-        // ================== CONTROLE DO MENU MOBILE ==================
+        // ================== CONTROLE DO MENU ==================
         function abrirMenuMobile() {
             document.getElementById('sidebar').classList.add('open');
             document.getElementById('sidebarOverlay').classList.add('active');
@@ -157,7 +186,7 @@ cat > index.html << 'EOF'
             element.classList.add('active');
             const titulos = { 
                 dashboard: 'Dashboard', estoque: 'Gestão de Estoque', 
-                vendas: 'Nova Venda', financeiro: 'Despesas (Matéria-Prima)',
+                vendas: 'Nova Venda', financeiro: 'Despesas',
                 historico: 'Histórico e Exportação'
             };
             document.getElementById('tituloPagina').innerText = titulos[aba];
@@ -203,24 +232,58 @@ cat > index.html << 'EOF'
             `;
         }
 
-        // ================== 2. ESTOQUE ==================
+        // ================== 2. ESTOQUE (NOVO LAYOUT COMPACTO) ==================
         function renderEstoque() {
             let html = `
                 <div class="table-card">
-                    <h5>Cadastrar Produto</h5>
-                    <div class="input-group-custom">
-                        <input type="text" id="eNome" placeholder="Nome do produto" style="flex:2">
-                        <input type="number" id="eCusto" placeholder="Custo (R$)" step="0.01" style="flex:1">
-                        <input type="number" id="eQtd" placeholder="Qtd" style="flex:1">
-                        <button class="btn-primary" onclick="adicionarProduto()">+ Adicionar</button>
+                    <h5><i class="fas fa-boxes" style="color:var(--primary); margin-right: 8px;"></i> Cadastrar Produto</h5>
+                    <div class="form-clean">
+                        <div class="input-group-item">
+                            <label>Nome</label>
+                            <input type="text" id="eNome" placeholder="Ex: Pijama Infantil">
+                        </div>
+                        <div class="input-group-item">
+                            <label>Custo (R$)</label>
+                            <input type="number" id="eCusto" placeholder="0,00" step="0.01">
+                        </div>
+                        <div class="input-group-item">
+                            <label>Qtd</label>
+                            <input type="number" id="eQtd" placeholder="0">
+                        </div>
+                        <div class="input-group-item" style="flex: 0 0 auto;">
+                            <button class="btn-primary" onclick="adicionarProduto()"><i class="fas fa-plus"></i> Adicionar</button>
+                        </div>
                     </div>
-                    <table class="table table-hover mt-3"><thead><tr><th>#</th><th>Produto</th><th>Custo</th><th>Qtd</th><th>Status</th><th></th></tr></thead><tbody>
+                    
+                    <table class="table-modern mt-4">
+                        <thead>
+                            <tr>
+                                <th>Produto</th>
+                                <th>Custo</th>
+                                <th>Qtd</th>
+                                <th>Status</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
             `;
-            dados.produtos.forEach(p => {
-                let badge = p.qtd === 0 ? 'badge-zero' : p.qtd < 10 ? 'badge-baixo' : 'badge-ok';
-                let status = p.qtd === 0 ? 'Esgotado' : p.qtd < 10 ? 'Baixo' : 'OK';
-                html += `<tr><td>#${p.id}</td><td>${p.nome}</td><td>${moeda(p.custo)}</td><td>${p.qtd}</td><td><span class="estado-badge ${badge}">${status}</span></td><td><button class="btn btn-sm btn-outline-danger" onclick="excluirProduto(${p.id})"><i class="fas fa-trash"></i></button></td></tr>`;
-            });
+            if(dados.produtos.length === 0) {
+                html += `<tr><td colspan="5" class="text-center text-muted py-4">Nenhum produto cadastrado ainda.</td></tr>`;
+            } else {
+                dados.produtos.forEach(p => {
+                    let badge = p.qtd === 0 ? 'badge-zero' : p.qtd < 10 ? 'badge-baixo' : 'badge-ok';
+                    let status = p.qtd === 0 ? 'Esgotado' : p.qtd < 10 ? 'Baixo' : 'OK';
+                    html += `<tr>
+                        <td><strong>${p.nome}</strong></td>
+                        <td>${moeda(p.custo)}</td>
+                        <td>${p.qtd}</td>
+                        <td><span class="estado-badge ${badge}">${status}</span></td>
+                        <td style="text-align: right;">
+                            <button class="btn-outline-danger" onclick="excluirProduto(${p.id})"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>`;
+                });
+            }
             html += `</tbody></table></div>`;
             document.getElementById('conteudoApp').innerHTML = html;
         }
@@ -241,25 +304,42 @@ cat > index.html << 'EOF'
         function renderVendas() {
             let html = `
                 <div class="table-card">
-                    <h5>1. Selecione os Produtos</h5>
-                    <div class="input-group-custom">
-                        <select id="vProduto" style="flex:2">
-                            <option value="">-- Escolha --</option>
-                            ${dados.produtos.filter(p => p.qtd > 0).map(p => `<option value="${p.id}">${p.nome} (Custo: ${moeda(p.custo)})</option>`).join('')}
-                        </select>
-                        <input type="number" id="vQtd" placeholder="Qtd" value="1" min="1" style="flex:1">
-                        <input type="number" id="vPrecoVenda" placeholder="Preço Venda (R$)" step="0.01" style="flex:1">
-                        <button class="btn-primary" onclick="adicionarAoCarrinho()"><i class="fas fa-cart-plus"></i> Adicionar</button>
+                    <h5><i class="fas fa-shopping-cart" style="color:var(--primary); margin-right: 8px;"></i> Nova Venda</h5>
+                    <div class="form-clean">
+                        <div class="input-group-item">
+                            <label>Produto</label>
+                            <select id="vProduto">
+                                <option value="">-- Selecione --</option>
+                                ${dados.produtos.filter(p => p.qtd > 0).map(p => `<option value="${p.id}">${p.nome} (Estoque: ${p.qtd})</option>`).join('')}
+                            </select>
+                        </div>
+                        <div class="input-group-item">
+                            <label>Qtd</label>
+                            <input type="number" id="vQtd" value="1" min="1">
+                        </div>
+                        <div class="input-group-item">
+                            <label>Preço Venda</label>
+                            <input type="number" id="vPrecoVenda" placeholder="R$ 0,00" step="0.01">
+                        </div>
+                        <div class="input-group-item" style="flex: 0 0 auto;">
+                            <button class="btn-primary" onclick="adicionarAoCarrinho()"><i class="fas fa-cart-plus"></i> Adicionar</button>
+                        </div>
                     </div>
                 </div>
                 <div class="table-card">
-                    <h5>2. Itens do Carrinho</h5>
-                    <div id="carrinhoItens" class="mb-3"></div>
-                    <div style="font-size: 20px; font-weight: 700; text-align: right; margin-bottom: 10px;">
-                        Total Venda: <span id="totalCarrinho">R$ 0,00</span><br>
-                        <small class="text-muted">Custo Total: <span id="custoTotalCarrinho">R$ 0,00</span></small>
+                    <h5>Itens do Carrinho</h5>
+                    <div id="carrinhoItens" class="mb-3">
+                        <p class="text-muted text-center py-2">Carrinho vazio</p>
                     </div>
-                    <button class="btn btn-success w-100" onclick="finalizarVenda()"><i class="fas fa-check"></i> Finalizar Venda</button>
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                        <div style="font-size: 18px; font-weight: 700;">
+                            Total: <span id="totalCarrinho" style="color: var(--primary);">R$ 0,00</span>
+                            <small class="text-muted" style="font-weight: 400; font-size: 14px; margin-left: 8px;">
+                                (Custo: <span id="custoTotalCarrinho">R$ 0,00</span>)
+                            </small>
+                        </div>
+                        <button class="btn-success" onclick="finalizarVenda()"><i class="fas fa-check"></i> Finalizar Venda</button>
+                    </div>
                 </div>
             `;
             document.getElementById('conteudoApp').innerHTML = html;
@@ -279,12 +359,21 @@ cat > index.html << 'EOF'
 
         function renderizarCarrinho() {
             const container = document.getElementById('carrinhoItens');
-            if(!window.carrinho.length) { container.innerHTML = '<p class="text-muted">Carrinho vazio</p>'; document.getElementById('totalCarrinho').innerText = 'R$ 0,00'; document.getElementById('custoTotalCarrinho').innerText = 'R$ 0,00'; return; }
+            if(!window.carrinho.length) { container.innerHTML = '<p class="text-muted text-center py-2">Carrinho vazio</p>'; document.getElementById('totalCarrinho').innerText = 'R$ 0,00'; document.getElementById('custoTotalCarrinho').innerText = 'R$ 0,00'; return; }
             let total = 0, totalCusto = 0, html = '';
             window.carrinho.forEach((item, i) => {
                 total += item.precoVenda * item.qtd;
                 totalCusto += item.custo * item.qtd;
-                html += `<div class="d-flex justify-content-between border-bottom py-2"><div>${item.nome} x ${item.qtd} (Custo: ${moeda(item.custo)} / Venda: ${moeda(item.precoVenda)})</div><div>${moeda(item.precoVenda * item.qtd)} <button class="btn btn-sm btn-outline-danger" onclick="removerCarrinho(${i})">x</button></div></div>`;
+                html += `<div class="d-flex justify-content-between align-items-center border-bottom py-2">
+                    <div>
+                        <strong>${item.nome}</strong>
+                        <br><small class="text-muted">${item.qtd} un x ${moeda(item.precoVenda)}</small>
+                    </div>
+                    <div>
+                        ${moeda(item.precoVenda * item.qtd)}
+                        <button class="btn-outline-danger ms-2" onclick="removerCarrinho(${i})" style="padding: 2px 8px;"><i class="fas fa-times"></i></button>
+                    </div>
+                </div>`;
             });
             container.innerHTML = html;
             document.getElementById('totalCarrinho').innerText = moeda(total);
@@ -296,12 +385,10 @@ cat > index.html << 'EOF'
             if(!window.carrinho.length) return alert("Carrinho vazio!");
             const total = window.carrinho.reduce((acc, i) => acc + (i.precoVenda * i.qtd), 0);
             const custoTotal = window.carrinho.reduce((acc, i) => acc + (i.custo * i.qtd), 0);
-            
             window.carrinho.forEach(item => {
                 const prod = dados.produtos.find(p => p.id === item.id);
                 if(prod) prod.qtd -= item.qtd;
             });
-            
             dados.vendas.push({ id: Date.now(), itens: window.carrinho, total, custoTotal });
             await salvarDados();
             alert(`Venda finalizada!\nTotal: ${moeda(total)}\nCusto: ${moeda(custoTotal)}\nLucro: ${moeda(total - custoTotal)}`);
@@ -312,19 +399,32 @@ cat > index.html << 'EOF'
         function renderFinanceiro() {
             let html = `
                 <div class="table-card">
-                    <h5>Lançar Despesa com Matéria-Prima (Tecidos, Etiquetas, etc.)</h5>
-                    <div class="input-group-custom">
-                        <input type="text" id="fDesc" placeholder="Descrição (Ex: Compra de Tecido)" style="flex:2">
-                        <input type="number" id="fValor" placeholder="Valor (R$)" step="0.01" style="flex:1">
-                        <button class="btn-primary" onclick="adicionarDespesa()">Lançar Despesa</button>
+                    <h5><i class="fas fa-coins" style="color:var(--danger); margin-right: 8px;"></i> Adicionar Despesa</h5>
+                    <div class="form-clean">
+                        <div class="input-group-item">
+                            <label>Descrição</label>
+                            <input type="text" id="fDesc" placeholder="Ex: Compra de Tecido">
+                        </div>
+                        <div class="input-group-item">
+                            <label>Valor (R$)</label>
+                            <input type="number" id="fValor" placeholder="0,00" step="0.01">
+                        </div>
+                        <div class="input-group-item" style="flex: 0 0 auto;">
+                            <button class="btn-primary" onclick="adicionarDespesa()"><i class="fas fa-plus"></i> Lançar</button>
+                        </div>
                     </div>
-                    <table class="table table-hover mt-3"><thead><tr><th>Descrição</th><th>Valor</th><th></th></tr></thead><tbody>
+                    
+                    <table class="table-modern mt-4">
+                        <thead><tr><th>Descrição</th><th>Valor</th><th></th></tr></thead>
+                        <tbody>
             `;
-            if(!dados.despesas) dados.despesas = [];
-
-            dados.despesas.slice().reverse().forEach(d => {
-                html += `<tr><td>${d.desc}</td><td style="color:var(--danger)">${moeda(d.valor)}</td><td><button class="btn btn-sm btn-outline-danger" onclick="excluirDespesa(${d.id})"><i class="fas fa-trash"></i></button></td></tr>`;
-            });
+            if(dados.despesas.length === 0) {
+                html += `<tr><td colspan="3" class="text-center text-muted py-4">Nenhuma despesa lançada.</td></tr>`;
+            } else {
+                dados.despesas.slice().reverse().forEach(d => {
+                    html += `<tr><td>${d.desc}</td><td style="color:var(--danger)">${moeda(d.valor)}</td><td style="text-align: right;"><button class="btn-outline-danger" onclick="excluirDespesa(${d.id})"><i class="fas fa-trash"></i></button></td></tr>`;
+                });
+            }
             html += `</tbody></table></div>`;
             document.getElementById('conteudoApp').innerHTML = html;
         }
@@ -341,61 +441,44 @@ cat > index.html << 'EOF'
             await salvarDados(); renderFinanceiro();
         };
 
-        // ================== 5. HISTÓRICO EM TEMPO REAL ==================
+        // ================== 5. HISTÓRICO ==================
         function renderHistorico() {
             if(!dados.historicoMensal) dados.historicoMensal = [];
             
-            // ========== CALCULAR O MÊS ATUAL EM TEMPO REAL ==========
             const agora = new Date();
             const mesAtual = `${agora.getMonth() + 1}/${agora.getFullYear()}`;
-            
             const totalVendasAtual = dados.vendas.reduce((acc, v) => acc + v.total, 0);
             const totalCustoAtual = dados.vendas.reduce((acc, v) => acc + v.custoTotal, 0);
             const totalDespesasAtual = dados.despesas.reduce((acc, d) => acc + d.valor, 0);
             const lucroAtual = (totalVendasAtual - totalCustoAtual) - totalDespesasAtual;
 
-            // ========== MONTAR A TABELA ==========
             let html = `
                 <div class="table-card">
                     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 20px;">
-                        <h5>📊 Relatório Mensal</h5>
-                        <button class="btn-export" onclick="exportarDados()"><i class="fas fa-file-csv"></i> Exportar Dados (CSV)</button>
+                        <h5><i class="fas fa-chart-simple" style="color:var(--primary); margin-right: 8px;"></i> Relatório Mensal</h5>
+                        <button class="btn-export" onclick="exportarDados()"><i class="fas fa-file-csv"></i> Exportar CSV</button>
                     </div>
                     <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Mês</th>
-                                    <th>Vendas (R$)</th>
-                                    <th>Custos (R$)</th>
-                                    <th>Despesas (R$)</th>
-                                    <th style="font-weight: bold;">Lucro Líquido (R$)</th>
-                                </tr>
-                            </thead>
+                        <table class="table-modern">
+                            <thead><tr><th>Mês</th><th>Vendas</th><th>Custos</th><th>Despesas</th><th>Lucro</th></tr></thead>
                             <tbody>
             `;
-
-            // 1. Adicionar o mês atual em andamento (Sempre aparece)
             const corAtual = lucroAtual >= 0 ? 'var(--success)' : 'var(--danger)';
-            const statusAtual = dados.vendas.length > 0 || dados.despesas.length > 0 ? '(Em andamento)' : '(Sem lançamentos)';
-            
             html += `
-                <tr style="background-color: var(--primary-light);">
-                    <td><strong>${mesAtual}</strong> <span class="badge bg-primary text-white">Aberto</span></td>
+                <tr style="background: var(--gray-50);">
+                    <td><strong>${mesAtual}</strong> <span class="status-label">Aberto</span></td>
                     <td>${moeda(totalVendasAtual)}</td>
                     <td>${moeda(totalCustoAtual)}</td>
                     <td style="color:var(--danger)">${moeda(totalDespesasAtual)}</td>
                     <td style="color:${corAtual}; font-weight: bold;">${moeda(lucroAtual)}</td>
                 </tr>
             `;
-
-            // 2. Adicionar os meses antigos (Já fechados)
             if(dados.historicoMensal.length > 0) {
                 dados.historicoMensal.slice().reverse().forEach(m => {
                     const corLucro = m.lucro >= 0 ? 'var(--success)' : 'var(--danger)';
                     html += `
                         <tr>
-                            <td><strong>${m.mes}</strong> <span class="badge bg-secondary text-white">Fechado</span></td>
+                            <td><strong>${m.mes}</strong> <span class="status-label" style="background: var(--gray-200); color: var(--gray-500);">Fechado</span></td>
                             <td>${moeda(m.vendas)}</td>
                             <td>${moeda(m.custos)}</td>
                             <td style="color:var(--danger)">${moeda(m.despesas)}</td>
@@ -404,54 +487,30 @@ cat > index.html << 'EOF'
                     `;
                 });
             } else {
-                html += `<tr><td colspan="5" class="text-center text-muted">Nenhum mês anterior fechado.</td></tr>`;
+                html += `<tr><td colspan="5" class="text-center text-muted py-4">Nenhum mês anterior fechado.</td></tr>`;
             }
-
             html += `</tbody></table></div></div>`;
             document.getElementById('conteudoApp').innerHTML = html;
         }
 
-        // ================== 6. EXPORTAÇÃO CSV (Meses Antigos + Mês Atual) ==================
+        // ================== 6. EXPORTAÇÃO ==================
         window.exportarDados = function() {
-            // Montar lista completa de dados para exportar
             let dadosExportacao = [];
-
-            // 1. Adicionar meses antigos
             if(dados.historicoMensal) {
                 dados.historicoMensal.forEach(m => {
-                    dadosExportacao.push({
-                        mes: m.mes,
-                        vendas: m.vendas.toFixed(2),
-                        custos: m.custos.toFixed(2),
-                        despesas: m.despesas.toFixed(2),
-                        lucro: m.lucro.toFixed(2),
-                        status: 'Fechado'
-                    });
+                    dadosExportacao.push({ mes: m.mes, vendas: m.vendas.toFixed(2), custos: m.custos.toFixed(2), despesas: m.despesas.toFixed(2), lucro: m.lucro.toFixed(2), status: 'Fechado' });
                 });
             }
-
-            // 2. Adicionar mês atual em tempo real
             const agora = new Date();
             const mesAtual = `${agora.getMonth() + 1}/${agora.getFullYear()}`;
             const totalVendasAtual = dados.vendas.reduce((acc, v) => acc + v.total, 0);
             const totalCustoAtual = dados.vendas.reduce((acc, v) => acc + v.custoTotal, 0);
             const totalDespesasAtual = dados.despesas.reduce((acc, d) => acc + d.valor, 0);
             const lucroAtual = (totalVendasAtual - totalCustoAtual) - totalDespesasAtual;
+            dadosExportacao.push({ mes: mesAtual, vendas: totalVendasAtual.toFixed(2), custos: totalCustoAtual.toFixed(2), despesas: totalDespesasAtual.toFixed(2), lucro: lucroAtual.toFixed(2), status: 'Em andamento' });
 
-            dadosExportacao.push({
-                mes: mesAtual,
-                vendas: totalVendasAtual.toFixed(2),
-                custos: totalCustoAtual.toFixed(2),
-                despesas: totalDespesasAtual.toFixed(2),
-                lucro: lucroAtual.toFixed(2),
-                status: 'Em andamento'
-            });
-
-            // Gerar CSV
             let csv = "Mês;Vendas (R$);Custos (R$);Despesas (R$);Lucro Líquido (R$);Status\n";
-            dadosExportacao.forEach(m => {
-                csv += `${m.mes};${m.vendas};${m.custos};${m.despesas};${m.lucro};${m.status}\n`;
-            });
+            dadosExportacao.forEach(m => { csv += `${m.mes};${m.vendas};${m.custos};${m.despesas};${m.lucro};${m.status}\n`; });
 
             const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement('a');
@@ -487,4 +546,3 @@ cat > index.html << 'EOF'
     </script>
 </body>
 </html>
-EOF
