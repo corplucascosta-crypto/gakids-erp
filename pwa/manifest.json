@@ -1,8 +1,6 @@
 {
-  "name": "G&A Kids ERP",
+  "name": "G&A Kids",
   "short_name": "GAKIDS",
   "start_url": "/",
-  "display": "standalone",
-  "background_color": "#7C3AED",
-  "theme_color": "#7C3AED"
+  "display": "standalone"
 }
