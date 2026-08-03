@@ -1,2 +1,14 @@
-body { font-family: sans-serif; background: #f0f0f0; }
-.sidebar { background: white; width: 240px; padding: 20px; }
+:root { --primary: #7C3AED; --gray-50: #F9FAFB; --gray-900: #111827; --sidebar-width: 240px; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Inter', sans-serif; background: var(--gray-50); }
+.sidebar { position: fixed; left: 0; top: 0; width: var(--sidebar-width); height: 100vh; background: white; border-right: 1px solid #eee; padding: 20px; }
+.sidebar .brand .logo { background: var(--primary); color: white; padding: 10px; border-radius: 8px; display: inline-block; margin-bottom: 20px; }
+.sidebar .nav .nav-item { display: block; padding: 10px; color: #333; text-decoration: none; }
+.sidebar .nav .nav-item.active { background: #EDE9FE; color: var(--primary); border-radius: 8px; }
+.main-content { margin-left: var(--sidebar-width); padding: 20px; }
+.header { display: flex; justify-content: space-between; margin-bottom: 20px; }
+.dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+.card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.card .header { display: flex; justify-content: space-between; margin-bottom: 10px; }
+.card .value { font-size: 24px; font-weight: bold; }
+@media (max-width: 767px) { .sidebar { transform: translateX(-100%); } .main-content { margin-left: 0; } }
