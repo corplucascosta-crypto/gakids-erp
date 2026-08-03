@@ -1,0 +1,22 @@
+{
+  "name": "G&A Kids ERP",
+  "short_name": "GAKIDS",
+  "description": "Sistema de Gestão Integrada para Loja de Roupas Infantis",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#7C3AED",
+  "theme_color": "#7C3AED",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/assets/img/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/img/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

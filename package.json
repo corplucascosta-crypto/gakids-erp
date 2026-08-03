@@ -1,0 +1,15 @@
+{
+  "name": "gakids-erp",
+  "version": "1.0.0",
+  "description": "Sistema ERP para G&A Kids",
+  "main": "index.html",
+  "scripts": {
+    "dev": "live-server --port=3000",
+    "build": "echo 'Build process'",
+    "deploy": "vercel --prod"
+  },
+  "devDependencies": {
+    "live-server": "^1.2.2",
+    "vercel": "^33.0.0"
+  }
+}
