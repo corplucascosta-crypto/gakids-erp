@@ -11,7 +11,7 @@ Sistema de Gestão Integrada para loja de roupas infantis.
 ## Como executar
 1. npm install
 2. npm run dev
-3. Acesse http://localhost:3000
+3. Acesse https://corplucascosta-crypto.github.io/gakids-erp
 
 ## Deploy
 - Vercel: vercel --prod
