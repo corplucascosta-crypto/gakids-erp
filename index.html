@@ -4,89 +4,42 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>G&A Kids - Gestão de Produção</title>
-    
-    <!-- FAVICON CORRIGIDO (Usando a própria imagem do Postimage) -->
     <link rel="icon" type="image/png" href="https://i.postimg.cc/1z4P5Mjk/Imagem1.png">
-    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #8B5CF6; 
-            --primary-light: #EDE9FE; 
-            --pink-soft: #FCE7F3; 
-            --gray-50: #F8FAFC; 
-            --gray-200: #E2E8F0;
-            --gray-500: #64748B; 
-            --gray-900: #1E293B; 
-            --white: #FFFFFF; 
-            --success: #10B981; 
-            --danger: #EF4444;
+            --primary: #8B5CF6; --primary-light: #EDE9FE; --gray-50: #F8FAFC; --gray-200: #E2E8F0;
+            --gray-500: #64748B; --gray-900: #1E293B; --white: #FFFFFF; --success: #10B981; --danger: #EF4444;
         }
-        [data-theme="dark"] {
-            --gray-50: #0F172A; --gray-200: #1E293B; --gray-500: #94A3B8; --gray-900: #F8FAFC; --white: #1E293B;
-        }
+        [data-theme="dark"] { --gray-50: #0F172A; --gray-200: #1E293B; --gray-500: #94A3B8; --gray-900: #F8FAFC; --white: #1E293B; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: var(--gray-50); color: var(--gray-900); transition: 0.3s; }
         
-        /* ===== SIDEBAR ===== */
-        .sidebar { 
-            position: fixed; left: 0; top: 0; width: 240px; height: 100vh; 
-            background: var(--white); border-right: 1px solid var(--gray-200); 
-            display: flex; flex-direction: column; z-index: 1000; 
-            transition: transform 0.3s ease;
-        }
-        .sidebar .brand { 
-            padding: 24px 20px; 
-            border-bottom: 1px solid var(--gray-200); 
-            display: flex; 
-            align-items: center; /* Centraliza verticalmente */
-            gap: 12px; 
-        }
-        
-        /* ===== NOVA LOGO CIRCULAR ===== */
-        .sidebar .brand .logo {
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            background-image: url('https://i.postimg.cc/1z4P5Mjk/Imagem1.png');
-            background-size: cover;
-            background-position: center;
-            background-color: var(--white);
-            border: 1px solid var(--gray-200);
-            flex-shrink: 0;
-        }
-        .sidebar .brand .name { 
-            font-weight: 600; 
-            font-size: 18px; 
-            color: var(--gray-900);
-            line-height: 1.2; /* Melhor alinhamento vertical */
-        }
-        
+        .sidebar { position: fixed; left: 0; top: 0; width: 240px; height: 100vh; background: var(--white); border-right: 1px solid var(--gray-200); display: flex; flex-direction: column; z-index: 1000; transition: transform 0.3s ease; }
+        .sidebar .brand { padding: 24px 20px; border-bottom: 1px solid var(--gray-200); display: flex; align-items: center; gap: 12px; }
+        .sidebar .brand .logo { width: 42px; height: 42px; border-radius: 50%; background-image: url('https://i.postimg.cc/1z4P5Mjk/Imagem1.png'); background-size: cover; background-position: center; border: 1px solid var(--gray-200); flex-shrink: 0; }
+        .sidebar .brand .name { font-weight: 600; font-size: 18px; color: var(--gray-900); line-height: 1.2; }
         .sidebar .nav { flex: 1; padding: 16px 12px; display: flex; flex-direction: column; gap: 4px; }
         .sidebar .nav .nav-item { display: flex; align-items: center; gap: 14px; padding: 10px 14px; color: var(--gray-500); text-decoration: none; border-radius: 8px; font-weight: 500; cursor: pointer; transition: 0.2s; }
         .sidebar .nav .nav-item:hover { background: var(--gray-50); color: var(--gray-900); }
         .sidebar .nav .nav-item.active { background: var(--primary-light); color: var(--primary); }
         .sidebar .nav .nav-item.sair { margin-top: auto; border-top: 1px solid var(--gray-200); padding-top: 16px; color: var(--danger); }
         
-        /* ===== LAYOUT ===== */
         .main-content { margin-left: 240px; padding: 24px; min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
         .app-container { width: 100%; max-width: 1300px; margin: 0 auto; }
-
         .header { display: flex; align-items: center; justify-content: space-between; background: var(--white); padding: 16px 24px; border-radius: 12px; border: 1px solid var(--gray-200); margin-bottom: 24px; width: 100%; }
         .header .left { display: flex; align-items: center; gap: 16px; }
         .header .left h1 { font-size: 20px; font-weight: 600; margin: 0; }
         .theme-toggle { background: none; border: none; font-size: 20px; color: var(--gray-500); cursor: pointer; }
         
-        /* ===== DASHBOARD CARDS ===== */
         .dashboard-grid { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 24px; width: 100%; }
         .card { background: var(--white); padding: 20px; border-radius: 12px; border: 1px solid var(--gray-200); }
         .card .header { display: flex; justify-content: space-between; margin-bottom: 8px; border: none; padding: 0; }
         .card .header .label { font-size: 14px; color: var(--gray-500); }
         .card .value { font-size: 22px; font-weight: 700; }
         
-        /* ===== TABELAS E FORMULÁRIOS ===== */
         .table-card { background: var(--white); padding: 20px; border-radius: 12px; border: 1px solid var(--gray-200); width: 100%; margin-top: 20px; }
         .table-card h5 { color: var(--gray-900); font-weight: 600; font-size: 16px; margin-bottom: 16px; }
         
@@ -95,7 +48,6 @@
         .form-clean label { font-size: 12px; font-weight: 600; color: var(--gray-500); display: block; margin-bottom: 4px; }
         .form-clean input, .form-clean select { width: 100%; padding: 8px 12px; border: 1px solid var(--gray-200); border-radius: 6px; background: var(--white); color: var(--gray-900); font-size: 14px; outline: none; transition: 0.2s; }
         .form-clean input:focus, .form-clean select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1); }
-
         .btn-primary { background: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 500; font-size: 14px; transition: 0.2s; white-space: nowrap; }
         .btn-primary:hover { background: #7C3AED; color: white; }
         .btn-success { background: var(--success); color: white; border: none; padding: 8px 16px; border-radius: 6px; transition: 0.2s; }
@@ -104,6 +56,8 @@
         .btn-export:hover { background: #2563EB; color: white; }
         .btn-outline-danger { border: 1px solid var(--danger); color: var(--danger); background: transparent; padding: 4px 8px; border-radius: 6px; }
         .btn-outline-danger:hover { background: #FEE2E2; }
+        .btn-sm-danger { border: none; background: #FEE2E2; color: #DC2626; padding: 2px 8px; border-radius: 4px; transition: 0.2s; }
+        .btn-sm-danger:hover { background: #FCA5A5; color: #991B1B; }
 
         .table-modern { width: 100%; border-collapse: collapse; font-size: 14px; }
         .table-modern th { text-align: left; padding: 12px 0; border-bottom: 1px solid var(--gray-200); color: var(--gray-500); font-weight: 600; }
@@ -116,7 +70,10 @@
         .badge-zero { background: #FEE2E2; color: #991B1B; }
         .status-label { font-size: 11px; background: var(--primary-light); color: var(--primary); padding: 2px 10px; border-radius: 20px; font-weight: 600; }
 
-        /* ===== MOBILE ===== */
+        /* Botão Detalhes (Roxo claro) */
+        .btn-detalhes { background: var(--primary-light); color: var(--primary); border: 1px solid var(--primary); padding: 4px 10px; border-radius: 6px; font-size: 12px; transition: 0.2s; }
+        .btn-detalhes:hover { background: var(--primary); color: white; }
+
         .hamburger-btn { display: none; background: none; border: none; font-size: 24px; color: var(--gray-500); cursor: pointer; padding: 5px; }
         @media (max-width: 768px) {
             .hamburger-btn { display: block; }
@@ -133,12 +90,8 @@
 </head>
 <body>
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="fecharMenuMobile()"></div>
-
     <div id="sidebar" class="sidebar">
-        <div class="brand">
-            <div class="logo"></div>
-            <span class="name">G&A Kids</span>
-        </div>
+        <div class="brand"><div class="logo"></div><span class="name">G&A Kids</span></div>
         <nav class="nav">
             <span class="nav-item active" onclick="trocarAba('dashboard', this)"><i class="fas fa-chart-pie icon"></i><span>Dashboard</span></span>
             <span class="nav-item" onclick="trocarAba('estoque', this)"><i class="fas fa-boxes icon"></i><span>Estoque</span></span>
@@ -161,15 +114,27 @@
         </div>
     </div>
 
+    <!-- MODAL DE DETALHES DO MÊS -->
+    <div class="modal fade" id="modalDetalhesMes" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalDetalhesTitulo">Detalhes do Mês</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="modalDetalhesCorpo">
+                    Carregando...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // ================== SUAS CHAVES ==================
         const BIN_ID = '6a71012df5f4af5e29e6d9a6';
         const MASTER_KEY = '$2a$10$mLw92VRK3D9RQ2QyqihvR.JPGbitvXJYiLIVYCZ7gNAhy7fUzmqgm';
 
-        // ================== BANCO DE DADOS ==================
-        let dados = JSON.parse(localStorage.getItem('gakids_data')) || {
-            produtos: [], vendas: [], despesas: [], historicoMensal: []
-        };
+        let dados = JSON.parse(localStorage.getItem('gakids_data')) || { produtos: [], vendas: [], despesas: [], historicoMensal: [] };
 
         async function salvarDados() {
             localStorage.setItem('gakids_data', JSON.stringify(dados));
@@ -184,9 +149,7 @@
 
         async function carregarDadosOnline() {
             try {
-                const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
-                    headers: { 'X-Master-Key': MASTER_KEY }
-                });
+                const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, { headers: { 'X-Master-Key': MASTER_KEY } });
                 const json = await res.json();
                 if(json.record) {
                     dados = json.record;
@@ -198,7 +161,6 @@
         const moeda = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
         const numero = (v) => new Intl.NumberFormat('pt-BR').format(v);
 
-        // ================== CONTROLE DO MENU ==================
         function abrirMenuMobile() {
             document.getElementById('sidebar').classList.add('open');
             document.getElementById('sidebarOverlay').classList.add('active');
@@ -207,18 +169,11 @@
             document.getElementById('sidebar').classList.remove('open');
             document.getElementById('sidebarOverlay').classList.remove('active');
         }
-        window.abrirMenuMobile = abrirMenuMobile;
-        window.fecharMenuMobile = fecharMenuMobile;
 
-        // ================== SISTEMA DE ABAS ==================
         function trocarAba(aba, element) {
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
             element.classList.add('active');
-            const titulos = { 
-                dashboard: 'Dashboard', estoque: 'Gestão de Estoque', 
-                vendas: 'Nova Venda', financeiro: 'Despesas',
-                historico: 'Histórico e Exportação'
-            };
+            const titulos = { dashboard: 'Dashboard', estoque: 'Gestão de Estoque', vendas: 'Nova Venda', financeiro: 'Despesas', historico: 'Histórico e Exportação' };
             document.getElementById('tituloPagina').innerText = titulos[aba];
             if(aba === 'dashboard') renderDashboard();
             if(aba === 'estoque') renderEstoque();
@@ -227,27 +182,22 @@
             if(aba === 'historico') renderHistorico();
             if(window.innerWidth <= 768) fecharMenuMobile();
         }
-        window.trocarAba = trocarAba;
 
         // ================== 1. DASHBOARD ==================
         function renderDashboard() {
             if(!dados.historicoMensal) dados.historicoMensal = [];
-
             const totalVendas = dados.vendas.reduce((acc, v) => acc + v.total, 0);
             const totalCusto = dados.vendas.reduce((acc, v) => acc + v.custoTotal, 0);
             const totalDespesas = dados.despesas.reduce((acc, d) => acc + d.valor, 0);
             const lucroBruto = totalVendas - totalCusto;
             const lucroLiquido = lucroBruto - totalDespesas;
-            
             const estoqueTotal = dados.produtos.reduce((acc, p) => acc + p.qtd, 0);
             const semEstoque = dados.produtos.filter(p => p.qtd === 0).length;
             const qtdVendas = dados.vendas.length;
             const ticketMedio = qtdVendas > 0 ? (totalVendas / qtdVendas) : 0;
-
             let ranking = {};
             dados.vendas.forEach(v => { v.itens.forEach(item => { ranking[item.nome] = (ranking[item.nome] || 0) + item.qtd; }); });
             let topProduto = Object.keys(ranking).sort((a,b) => ranking[b] - ranking[a])[0] || 'Nenhum';
-
             document.getElementById('conteudoApp').innerHTML = `
                 <div class="dashboard-grid">
                     <div class="card"><div class="header"><span class="label">💰 Vendas</span></div><div class="value" style="color:var(--success)">${moeda(totalVendas)}</div></div>
@@ -268,56 +218,22 @@
                 <div class="table-card">
                     <h5><i class="fas fa-boxes" style="color:var(--primary); margin-right: 8px;"></i> Cadastrar Produto</h5>
                     <div class="form-clean">
-                        <div class="input-group-item">
-                            <label>Nome</label>
-                            <input type="text" id="eNome" placeholder="Ex: Pijama Infantil">
-                        </div>
-                        <div class="input-group-item">
-                            <label>Custo (R$)</label>
-                            <input type="number" id="eCusto" placeholder="0,00" step="0.01">
-                        </div>
-                        <div class="input-group-item">
-                            <label>Qtd</label>
-                            <input type="number" id="eQtd" placeholder="0">
-                        </div>
-                        <div class="input-group-item" style="flex: 0 0 auto;">
-                            <button class="btn-primary" onclick="adicionarProduto()"><i class="fas fa-plus"></i> Adicionar</button>
-                        </div>
+                        <div class="input-group-item"><label>Nome</label><input type="text" id="eNome" placeholder="Ex: Pijama Infantil"></div>
+                        <div class="input-group-item"><label>Custo (R$)</label><input type="number" id="eCusto" placeholder="0,00" step="0.01"></div>
+                        <div class="input-group-item"><label>Qtd</label><input type="number" id="eQtd" placeholder="0"></div>
+                        <div class="input-group-item" style="flex: 0 0 auto;"><button class="btn-primary" onclick="adicionarProduto()"><i class="fas fa-plus"></i> Adicionar</button></div>
                     </div>
-                    
-                    <table class="table-modern mt-4">
-                        <thead>
-                            <tr>
-                                <th>Produto</th>
-                                <th>Custo</th>
-                                <th>Qtd</th>
-                                <th>Status</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
+                    <table class="table-modern mt-4"><thead><tr><th>Produto</th><th>Custo</th><th>Qtd</th><th>Status</th><th></th></tr></thead><tbody>
             `;
-            if(dados.produtos.length === 0) {
-                html += `<tr><td colspan="5" class="text-center text-muted py-4">Nenhum produto cadastrado ainda.</td></tr>`;
-            } else {
-                dados.produtos.forEach(p => {
-                    let badge = p.qtd === 0 ? 'badge-zero' : p.qtd < 10 ? 'badge-baixo' : 'badge-ok';
-                    let status = p.qtd === 0 ? 'Esgotado' : p.qtd < 10 ? 'Baixo' : 'OK';
-                    html += `<tr>
-                        <td><strong>${p.nome}</strong></td>
-                        <td>${moeda(p.custo)}</td>
-                        <td>${p.qtd}</td>
-                        <td><span class="estado-badge ${badge}">${status}</span></td>
-                        <td style="text-align: right;">
-                            <button class="btn-outline-danger" onclick="excluirProduto(${p.id})"><i class="fas fa-trash"></i></button>
-                        </td>
-                    </tr>`;
-                });
-            }
+            if(dados.produtos.length === 0) html += `<tr><td colspan="5" class="text-center text-muted py-4">Nenhum produto cadastrado ainda.</td></tr>`;
+            else dados.produtos.forEach(p => {
+                let badge = p.qtd === 0 ? 'badge-zero' : p.qtd < 10 ? 'badge-baixo' : 'badge-ok';
+                let status = p.qtd === 0 ? 'Esgotado' : p.qtd < 10 ? 'Baixo' : 'OK';
+                html += `<tr><td><strong>${p.nome}</strong></td><td>${moeda(p.custo)}</td><td>${p.qtd}</td><td><span class="estado-badge ${badge}">${status}</span></td><td style="text-align: right;"><button class="btn-outline-danger" onclick="excluirProduto(${p.id})"><i class="fas fa-trash"></i></button></td></tr>`;
+            });
             html += `</tbody></table></div>`;
             document.getElementById('conteudoApp').innerHTML = html;
         }
-
         window.adicionarProduto = async function() {
             const n = document.getElementById('eNome').value, c = parseFloat(document.getElementById('eCusto').value), q = parseInt(document.getElementById('eQtd').value);
             if(!n || isNaN(c) || isNaN(q)) return alert("Preencha todos os campos");
@@ -330,51 +246,42 @@
             await salvarDados(); renderEstoque();
         };
 
-        // ================== 3. VENDAS ==================
+        // ================== 3. VENDAS (COM HISTÓRICO VISÍVEL) ==================
         function renderVendas() {
             let html = `
                 <div class="table-card">
                     <h5><i class="fas fa-shopping-cart" style="color:var(--primary); margin-right: 8px;"></i> Nova Venda</h5>
                     <div class="form-clean">
-                        <div class="input-group-item">
-                            <label>Produto</label>
-                            <select id="vProduto">
-                                <option value="">-- Selecione --</option>
-                                ${dados.produtos.filter(p => p.qtd > 0).map(p => `<option value="${p.id}">${p.nome} (Estoque: ${p.qtd})</option>`).join('')}
-                            </select>
-                        </div>
-                        <div class="input-group-item">
-                            <label>Qtd</label>
-                            <input type="number" id="vQtd" value="1" min="1">
-                        </div>
-                        <div class="input-group-item">
-                            <label>Preço Venda</label>
-                            <input type="number" id="vPrecoVenda" placeholder="R$ 0,00" step="0.01">
-                        </div>
-                        <div class="input-group-item" style="flex: 0 0 auto;">
-                            <button class="btn-primary" onclick="adicionarAoCarrinho()"><i class="fas fa-cart-plus"></i> Adicionar</button>
-                        </div>
+                        <div class="input-group-item"><label>Produto</label>
+                            <select id="vProduto"><option value="">-- Selecione --</option>${dados.produtos.filter(p => p.qtd > 0).map(p => `<option value="${p.id}">${p.nome} (Estoque: ${p.qtd})</option>`).join('')}</select></div>
+                        <div class="input-group-item"><label>Qtd</label><input type="number" id="vQtd" value="1" min="1"></div>
+                        <div class="input-group-item"><label>Preço Venda</label><input type="number" id="vPrecoVenda" placeholder="R$ 0,00" step="0.01"></div>
+                        <div class="input-group-item" style="flex: 0 0 auto;"><button class="btn-primary" onclick="adicionarAoCarrinho()"><i class="fas fa-cart-plus"></i> Adicionar</button></div>
                     </div>
                 </div>
                 <div class="table-card">
                     <h5>Itens do Carrinho</h5>
-                    <div id="carrinhoItens" class="mb-3">
-                        <p class="text-muted text-center py-2">Carrinho vazio</p>
-                    </div>
+                    <div id="carrinhoItens" class="mb-3"><p class="text-muted text-center py-2">Carrinho vazio</p></div>
                     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-                        <div style="font-size: 18px; font-weight: 700;">
-                            Total: <span id="totalCarrinho" style="color: var(--primary);">R$ 0,00</span>
-                            <small class="text-muted" style="font-weight: 400; font-size: 14px; margin-left: 8px;">
-                                (Custo: <span id="custoTotalCarrinho">R$ 0,00</span>)
-                            </small>
-                        </div>
+                        <div style="font-size: 18px; font-weight: 700;">Total: <span id="totalCarrinho" style="color: var(--primary);">R$ 0,00</span> <small class="text-muted" style="font-weight: 400; font-size: 14px; margin-left: 8px;">(Custo: <span id="custoTotalCarrinho">R$ 0,00</span>)</small></div>
                         <button class="btn-success" onclick="finalizarVenda()"><i class="fas fa-check"></i> Finalizar Venda</button>
                     </div>
                 </div>
+                <div class="table-card">
+                    <h5><i class="fas fa-clock-rotate-left" style="color:var(--gray-500); margin-right: 8px;"></i> Histórico de Vendas</h5>
+                    <table class="table-modern"><thead><tr><th>Data</th><th>Produtos</th><th>Total</th><th></th></tr></thead><tbody>
             `;
+            if(dados.vendas.length === 0) html += `<tr><td colspan="4" class="text-center text-muted py-4">Nenhuma venda realizada ainda.</td></tr>`;
+            else {
+                dados.vendas.slice().reverse().forEach(v => {
+                    const data = new Date(v.id).toLocaleDateString('pt-BR');
+                    const itensResumo = v.itens.map(i => `${i.nome} (${i.qtd}x)`).join(', ');
+                    html += `<tr><td>${data}</td><td>${itensResumo}</td><td style="color:var(--success)">${moeda(v.total)}</td><td style="text-align: right;"><button class="btn-sm-danger" onclick="excluirVenda(${v.id})"><i class="fas fa-times"></i></button></td></tr>`;
+                });
+            }
+            html += `</tbody></table></div>`;
             document.getElementById('conteudoApp').innerHTML = html;
-            window.carrinho = [];
-            renderizarCarrinho();
+            window.carrinho = []; renderizarCarrinho();
         }
 
         window.adicionarAoCarrinho = function() {
@@ -392,18 +299,8 @@
             if(!window.carrinho.length) { container.innerHTML = '<p class="text-muted text-center py-2">Carrinho vazio</p>'; document.getElementById('totalCarrinho').innerText = 'R$ 0,00'; document.getElementById('custoTotalCarrinho').innerText = 'R$ 0,00'; return; }
             let total = 0, totalCusto = 0, html = '';
             window.carrinho.forEach((item, i) => {
-                total += item.precoVenda * item.qtd;
-                totalCusto += item.custo * item.qtd;
-                html += `<div class="d-flex justify-content-between align-items-center border-bottom py-2">
-                    <div>
-                        <strong>${item.nome}</strong>
-                        <br><small class="text-muted">${item.qtd} un x ${moeda(item.precoVenda)}</small>
-                    </div>
-                    <div>
-                        ${moeda(item.precoVenda * item.qtd)}
-                        <button class="btn-outline-danger ms-2" onclick="removerCarrinho(${i})" style="padding: 2px 8px;"><i class="fas fa-times"></i></button>
-                    </div>
-                </div>`;
+                total += item.precoVenda * item.qtd; totalCusto += item.custo * item.qtd;
+                html += `<div class="d-flex justify-content-between align-items-center border-bottom py-2"><div><strong>${item.nome}</strong><br><small class="text-muted">${item.qtd} un x ${moeda(item.precoVenda)}</small></div><div>${moeda(item.precoVenda * item.qtd)} <button class="btn-outline-danger ms-2" onclick="removerCarrinho(${i})" style="padding: 2px 8px;"><i class="fas fa-times"></i></button></div></div>`;
             });
             container.innerHTML = html;
             document.getElementById('totalCarrinho').innerText = moeda(total);
@@ -415,44 +312,40 @@
             if(!window.carrinho.length) return alert("Carrinho vazio!");
             const total = window.carrinho.reduce((acc, i) => acc + (i.precoVenda * i.qtd), 0);
             const custoTotal = window.carrinho.reduce((acc, i) => acc + (i.custo * i.qtd), 0);
-            window.carrinho.forEach(item => {
-                const prod = dados.produtos.find(p => p.id === item.id);
-                if(prod) prod.qtd -= item.qtd;
-            });
+            window.carrinho.forEach(item => { const prod = dados.produtos.find(p => p.id === item.id); if(prod) prod.qtd -= item.qtd; });
             dados.vendas.push({ id: Date.now(), itens: window.carrinho, total, custoTotal });
             await salvarDados();
             alert(`Venda finalizada!\nTotal: ${moeda(total)}\nCusto: ${moeda(custoTotal)}\nLucro: ${moeda(total - custoTotal)}`);
             renderVendas();
         };
+        window.excluirVenda = async function(id) {
+            if(!confirm("Excluir esta venda do histórico? (O estoque será restaurado)")) return;
+            const venda = dados.vendas.find(v => v.id === id);
+            if(venda) {
+                venda.itens.forEach(item => { const prod = dados.produtos.find(p => p.id === item.id); if(prod) prod.qtd += item.qtd; });
+                dados.vendas = dados.vendas.filter(v => v.id !== id);
+                await salvarDados();
+                renderVendas();
+            }
+        };
 
-        // ================== 4. DESPESAS ==================
+        // ================== 4. DESPESAS (COM HISTÓRICO VISÍVEL) ==================
         function renderFinanceiro() {
             let html = `
                 <div class="table-card">
                     <h5><i class="fas fa-coins" style="color:var(--danger); margin-right: 8px;"></i> Adicionar Despesa</h5>
                     <div class="form-clean">
-                        <div class="input-group-item">
-                            <label>Descrição</label>
-                            <input type="text" id="fDesc" placeholder="Ex: Compra de Tecido">
-                        </div>
-                        <div class="input-group-item">
-                            <label>Valor (R$)</label>
-                            <input type="number" id="fValor" placeholder="0,00" step="0.01">
-                        </div>
-                        <div class="input-group-item" style="flex: 0 0 auto;">
-                            <button class="btn-primary" onclick="adicionarDespesa()"><i class="fas fa-plus"></i> Lançar</button>
-                        </div>
+                        <div class="input-group-item"><label>Descrição</label><input type="text" id="fDesc" placeholder="Ex: Compra de Tecido"></div>
+                        <div class="input-group-item"><label>Valor (R$)</label><input type="number" id="fValor" placeholder="0,00" step="0.01"></div>
+                        <div class="input-group-item" style="flex: 0 0 auto;"><button class="btn-primary" onclick="adicionarDespesa()"><i class="fas fa-plus"></i> Lançar</button></div>
                     </div>
-                    
-                    <table class="table-modern mt-4">
-                        <thead><tr><th>Descrição</th><th>Valor</th><th></th></tr></thead>
-                        <tbody>
+                    <table class="table-modern mt-4"><thead><tr><th>Descrição</th><th>Valor</th><th>Data</th><th></th></tr></thead><tbody>
             `;
-            if(dados.despesas.length === 0) {
-                html += `<tr><td colspan="3" class="text-center text-muted py-4">Nenhuma despesa lançada.</td></tr>`;
-            } else {
+            if(dados.despesas.length === 0) html += `<tr><td colspan="4" class="text-center text-muted py-4">Nenhuma despesa lançada.</td></tr>`;
+            else {
                 dados.despesas.slice().reverse().forEach(d => {
-                    html += `<tr><td>${d.desc}</td><td style="color:var(--danger)">${moeda(d.valor)}</td><td style="text-align: right;"><button class="btn-outline-danger" onclick="excluirDespesa(${d.id})"><i class="fas fa-trash"></i></button></td></tr>`;
+                    const data = new Date(d.id).toLocaleDateString('pt-BR');
+                    html += `<tr><td>${d.desc}</td><td style="color:var(--danger)">${moeda(d.valor)}</td><td>${data}</td><td style="text-align: right;"><button class="btn-sm-danger" onclick="excluirDespesa(${d.id})"><i class="fas fa-times"></i></button></td></tr>`;
                 });
             }
             html += `</tbody></table></div>`;
@@ -471,10 +364,9 @@
             await salvarDados(); renderFinanceiro();
         };
 
-        // ================== 5. HISTÓRICO ==================
+        // ================== 5. HISTÓRICO COMPLETO ==================
         function renderHistorico() {
             if(!dados.historicoMensal) dados.historicoMensal = [];
-            
             const agora = new Date();
             const mesAtual = `${agora.getMonth() + 1}/${agora.getFullYear()}`;
             const totalVendasAtual = dados.vendas.reduce((acc, v) => acc + v.total, 0);
@@ -488,10 +380,7 @@
                         <h5><i class="fas fa-chart-simple" style="color:var(--primary); margin-right: 8px;"></i> Relatório Mensal</h5>
                         <button class="btn-export" onclick="exportarDados()"><i class="fas fa-file-csv"></i> Exportar CSV</button>
                     </div>
-                    <div class="table-responsive">
-                        <table class="table-modern">
-                            <thead><tr><th>Mês</th><th>Vendas</th><th>Custos</th><th>Despesas</th><th>Lucro</th></tr></thead>
-                            <tbody>
+                    <div class="table-responsive"><table class="table-modern"><thead><tr><th>Mês</th><th>Vendas</th><th>Custos</th><th>Despesas</th><th>Lucro</th><th></th></tr></thead><tbody>
             `;
             const corAtual = lucroAtual >= 0 ? 'var(--success)' : 'var(--danger)';
             html += `
@@ -501,6 +390,7 @@
                     <td>${moeda(totalCustoAtual)}</td>
                     <td style="color:var(--danger)">${moeda(totalDespesasAtual)}</td>
                     <td style="color:${corAtual}; font-weight: bold;">${moeda(lucroAtual)}</td>
+                    <td><button class="btn-detalhes" onclick="abrirModalDetalhes('${mesAtual}')"><i class="fas fa-eye"></i> Ver Detalhes</button></td>
                 </tr>
             `;
             if(dados.historicoMensal.length > 0) {
@@ -513,24 +403,64 @@
                             <td>${moeda(m.custos)}</td>
                             <td style="color:var(--danger)">${moeda(m.despesas)}</td>
                             <td style="color:${corLucro}; font-weight: bold;">${moeda(m.lucro)}</td>
+                            <td><button class="btn-detalhes" onclick="abrirModalDetalhes('${m.mes}')"><i class="fas fa-eye"></i> Ver Detalhes</button></td>
                         </tr>
                     `;
                 });
             } else {
-                html += `<tr><td colspan="5" class="text-center text-muted py-4">Nenhum mês anterior fechado.</td></tr>`;
+                html += `<tr><td colspan="6" class="text-center text-muted py-4">Nenhum mês anterior fechado.</td></tr>`;
             }
             html += `</tbody></table></div></div>`;
             document.getElementById('conteudoApp').innerHTML = html;
         }
 
-        // ================== 6. EXPORTAÇÃO ==================
+        // ================== MODAL DE DETALHES ==================
+        window.abrirModalDetalhes = function(mes) {
+            document.getElementById('modalDetalhesTitulo').innerText = `Detalhes do Mês: ${mes}`;
+            const corpo = document.getElementById('modalDetalhesCorpo');
+            
+            // Filtrar vendas e despesas do mês específico
+            const [mesNum, anoNum] = mes.split('/').map(Number);
+            const vendasMes = dados.vendas.filter(v => {
+                const d = new Date(v.id);
+                return d.getMonth() + 1 === mesNum && d.getFullYear() === anoNum;
+            });
+            const despesasMes = dados.despesas.filter(d => {
+                const dt = new Date(d.id);
+                return dt.getMonth() + 1 === mesNum && dt.getFullYear() === anoNum;
+            });
+
+            let html = `<h6 class="text-success">Vendas do Mês</h6>`;
+            if(vendasMes.length === 0) html += `<p class="text-muted">Nenhuma venda neste mês.</p>`;
+            else {
+                html += `<ul class="list-group mb-3">`;
+                vendasMes.slice().reverse().forEach(v => {
+                    const data = new Date(v.id).toLocaleDateString('pt-BR');
+                    html += `<li class="list-group-item d-flex justify-content-between"><span>${data} - ${v.itens.map(i => i.nome).join(', ')}</span><span class="text-success">${moeda(v.total)}</span></li>`;
+                });
+                html += `</ul>`;
+            }
+
+            html += `<h6 class="text-danger mt-3">Despesas do Mês</h6>`;
+            if(despesasMes.length === 0) html += `<p class="text-muted">Nenhuma despesa neste mês.</p>`;
+            else {
+                html += `<ul class="list-group">`;
+                despesasMes.slice().reverse().forEach(d => {
+                    const data = new Date(d.id).toLocaleDateString('pt-BR');
+                    html += `<li class="list-group-item d-flex justify-content-between"><span>${data} - ${d.desc}</span><span class="text-danger">${moeda(d.valor)}</span></li>`;
+                });
+                html += `</ul>`;
+            }
+
+            corpo.innerHTML = html;
+            const modal = new bootstrap.Modal(document.getElementById('modalDetalhesMes'));
+            modal.show();
+        };
+
+        // ================== EXPORTAÇÃO ==================
         window.exportarDados = function() {
             let dadosExportacao = [];
-            if(dados.historicoMensal) {
-                dados.historicoMensal.forEach(m => {
-                    dadosExportacao.push({ mes: m.mes, vendas: m.vendas.toFixed(2), custos: m.custos.toFixed(2), despesas: m.despesas.toFixed(2), lucro: m.lucro.toFixed(2), status: 'Fechado' });
-                });
-            }
+            if(dados.historicoMensal) dados.historicoMensal.forEach(m => dadosExportacao.push({ mes: m.mes, vendas: m.vendas.toFixed(2), custos: m.custos.toFixed(2), despesas: m.despesas.toFixed(2), lucro: m.lucro.toFixed(2), status: 'Fechado' }));
             const agora = new Date();
             const mesAtual = `${agora.getMonth() + 1}/${agora.getFullYear()}`;
             const totalVendasAtual = dados.vendas.reduce((acc, v) => acc + v.total, 0);
@@ -541,15 +471,11 @@
 
             let csv = "Mês;Vendas (R$);Custos (R$);Despesas (R$);Lucro Líquido (R$);Status\n";
             dadosExportacao.forEach(m => { csv += `${m.mes};${m.vendas};${m.custos};${m.despesas};${m.lucro};${m.status}\n`; });
-
             const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
             link.download = `Relatorio_Completo_G&A_Kids_${new Date().toISOString().slice(0,10)}.csv`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(link.href);
+            document.body.appendChild(link); link.click(); document.body.removeChild(link); URL.revokeObjectURL(link.href);
         };
 
         // ================== DARK MODE ==================
@@ -567,11 +493,8 @@
         // ================== INICIALIZAR ==================
         (async function init() {
             await carregarDadosOnline();
-            if(!dados.vendas) dados.vendas = [];
-            if(!dados.despesas) dados.despesas = [];
-            if(!dados.historicoMensal) dados.historicoMensal = [];
-            await salvarDados();
-            renderDashboard();
+            if(!dados.vendas) dados.vendas = []; if(!dados.despesas) dados.despesas = []; if(!dados.historicoMensal) dados.historicoMensal = [];
+            await salvarDados(); renderDashboard();
         })();
     </script>
 </body>
